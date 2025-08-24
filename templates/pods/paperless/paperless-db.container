@@ -1,0 +1,13 @@
+[Container]
+Pod=paperless
+ContainerName=paperless_ngx_db
+Label=app=paperless
+AutoUpdate=registry
+Image=docker.io/library/postgres:17-trixie
+Exec=-c listen_addresses=127.0.0.1
+Environment=POSTGRES_DB=paperless POSTGRES_USER=paperless
+Secret=paperless-db-password,type=env,target=POSTGRES_PASSWORD
+Volume=paperless-db.volume:/var/lib/postgresql/data
+
+[Service]
+Restart=always

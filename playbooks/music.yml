@@ -1,0 +1,20 @@
+---
+- name: Music
+  hosts: home
+  become: false
+  tasks:
+    - name: Install deps
+      become: true
+      ansible.builtin.package:
+        name: "ffmpeg imagemagick"
+        state: "present"
+    # - name: Install beets
+    #   https://docs.ansible.com/ansible/latest/collections/community/general/pipx_module.html
+    #   pipx install beets[lastgenre,fetchart,chroma]
+    - name: Copy beets config
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/beets/"
+        dest: "/home/genevieve/.config/beets"
+        owner: "genevieve"
+        group: "genevieve"
+        mode: "0644"

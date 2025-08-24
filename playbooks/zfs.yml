@@ -1,0 +1,30 @@
+---
+- name: ZFS pool and dataset
+  hosts: home
+  tasks:
+    - name: Import zpool
+      ansible.builtin.command:
+        cmd: zpool import tank
+        creates: /tank
+    - name: Check if ZFS dataset is mounted
+      ansible.builtin.command:
+        cmd: zfs list -H -o mounted tank/data
+      register: zfs_mount_status
+      failed_when: false
+      changed_when: false
+
+    - name: Load ZFS encryption key if needed
+      ansible.builtin.command:
+        cmd: zfs load-key tank/data
+      when: zfs_mount_status.stdout != "yes"
+      register: zfs_key_load
+      failed_when: zfs_key_load.rc != 0 and "already loaded" not in zfs_key_load.stderr
+      changed_when: zfs_key_load.rc == 0
+
+    - name: Mount ZFS dataset
+      ansible.builtin.command:
+        cmd: zfs mount tank/data
+      when: zfs_mount_status.stdout != "yes"
+      register: zfs_mount_result
+      failed_when: zfs_mount_result.rc != 0 and "already mounted" not in zfs_mount_result.stderr
+      changed_when: zfs_mount_result.rc == 0

@@ -1,0 +1,13 @@
+[Pod]
+PodName=immich
+Network=services.network
+
+[Unit]
+After=nss-lookup.target
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=900

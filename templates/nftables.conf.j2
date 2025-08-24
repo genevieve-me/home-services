@@ -1,0 +1,58 @@
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table inet filter {
+    chain input {
+        type filter hook input priority filter; policy drop;
+
+        # Allow established and related connections
+        ct state {established, related} accept
+
+        # Drop invalid packets
+        ct state invalid drop
+
+        # Allow from loopback interface
+        iifname "lo" accept
+
+        # Rate-limited ICMP
+        ip protocol icmp icmp type echo-request limit rate 5/second accept
+        ip6 nexthdr ipv6-icmp icmpv6 type echo-request limit rate 5/second accept
+
+        # Allow essential ICMP types
+        # echo-reply should be accepted by established/related rule, but include here too for completeness
+        ip protocol icmp icmp type { echo-reply, destination-unreachable, time-exceeded, parameter-problem } accept
+        ip6 nexthdr ipv6-icmp icmpv6 type { echo-reply, nd-neighbor-solicit, nd-neighbor-advert, nd-router-advert, packet-too-big } accept
+
+        # Allow incoming traffic on specific ports with rate limiting for new connections
+        # Existing connections are matched above by established/related
+        tcp dport { 22, 22000 } ct state new limit rate 5/minute accept # SSH, Syncthing TCP
+        tcp dport { 80, 443 } ct state new limit rate 15/minute accept # HTTP, HTTPS
+        udp dport { 21027, 22000 } accept # Syncthing Discovery and QUIC
+
+        # Log and drop everything else
+        log prefix "nft dropped: " limit rate 5/minute
+        drop
+    }
+
+    chain forward {
+        # drop all packets with external destination. would need to be changed for external 'VPN'
+        type filter hook forward priority filter; policy drop;
+    }
+
+    chain output {
+        # allow all output
+        # be stricter here too? need to connect to ghcr/docker.io, nextcloud store, ...?
+        type filter hook output priority filter; policy accept;
+    }
+}
+
+table inet podman-nat {
+    chain prerouting {
+        type nat hook prerouting priority dstnat; policy accept;
+        # Redirect HTTP/HTTPS to rootless Caddy container
+        # could these ports be an ansible variable that also goes into caddy.container?
+        tcp dport 80 redirect to :{{ caddy_http_port }}
+        tcp dport 443 redirect to :{{ caddy_https_port }}
+    }
+}

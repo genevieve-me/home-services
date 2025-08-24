@@ -1,0 +1,31 @@
+---
+- name: Configure persistent firewall with nftables
+  hosts: home
+  become: true
+  tasks:
+    - name: Install nftables
+      ansible.builtin.package:
+        name: "nftables"
+        state: "present"
+
+    - name: Configure nftables
+      ansible.builtin.template:
+        src: "{{ inventory_dir }}/templates/nftables.conf.j2"
+        dest: "/etc/nftables.conf"
+        owner: "root"
+        group: "root"
+        mode: "0600"
+      notify:
+        - Restart nftables
+
+    - name: Ensure nftables service is started and enabled
+      ansible.builtin.systemd_service:
+        name: "nftables"
+        state: "started"
+        enabled: true
+
+  handlers:
+    - name: Restart nftables
+      ansible.builtin.systemd_service:
+        name: "nftables"
+        state: "restarted"

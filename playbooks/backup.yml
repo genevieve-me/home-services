@@ -1,0 +1,16 @@
+---
+# TODO: see varda/backups/restic.service
+# - name: Backup
+#   script: |
+#     #!/usr/bin/env sh
+#     # backed up currently: /data/Music
+#     if [ -z $1 ]; then
+#     	echo "Missing argument: pass the directory to backup! Quitting";
+#     	exit 1;
+#     fi;
+#     if [ "$#" -ge 2 ]; then
+#     	echo "Too many args! Would skip $2. Quitting";
+#     	exit 1;
+#     fi;
+#     echo running on "$1";
+#      RESTIC_PASSWORD="" restic -r sftp:de3946@de3946.rsync.net:restic backup "$1";

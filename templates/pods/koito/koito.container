@@ -1,0 +1,13 @@
+[Unit]
+After=koito-db.service
+
+[Container]
+Pod=koito.pod
+ContainerName=koito
+Image=docker.io/gabehf/koito:v0.0.13
+Environment=KOITO_ALLOWED_HOSTS=koito.genevievemendoza.com,koito:4110
+Secret=koito-db-url,type=env,target=KOITO_DATABASE_URL
+Volume=koito.volume:/etc/koito
+
+[Service]
+Restart=always

@@ -1,0 +1,106 @@
+- name: Deploy Rootless Quadlet Pods
+  hosts: "home"
+  become: false
+  pre_tasks:
+    - name: System level requirements
+      become: true
+      block:
+        - name: Install podman
+          ansible.builtin.package:
+            name: "podman"
+            state: "present"
+        - name: "Ensure user exists: {{ ansible_user }}"
+          ansible.builtin.user:
+            name: "{{ ansible_user }}"
+            home: "/home/{{ ansible_user }}"
+            append: true
+            # for immich machine learning
+            groups: ["render"]
+            password: "{{ user_password_hash | default('dummy') }}"
+        - name: Lock root user
+          ansible.builtin.user:
+            name: "root"
+            password_lock: true
+    - name: Find repository root
+      ansible.builtin.include_vars:
+        file: vars.yml
+        name: project_dir
+    - name: Load secrets
+      ansible.builtin.include_vars:
+        file: vars.vault.yml
+    - name: Enable podman auto update service
+      ansible.builtin.systemd_service:
+        scope: "user"
+        daemon_reload: true
+        name: "podman-auto-update.timer"
+        enabled: true
+        state: "started"
+    - name: Copy Caddyfile
+      ansible.builtin.copy:
+        src: "{{ project_dir }}/templates/Caddyfile"
+        dest: "/home/{{ ansible_user }}/Caddyfile"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0644"
+  roles:
+    - role: "linux-system-roles.podman"
+  vars:
+    podman_run_as_user: "{{ ansible_user }}"
+    podman_activate_systemd_unit: true
+    # note that these are stored unencrypted on the host by default
+    podman_secrets:
+      - name: immich-db-password
+        data: "{{ immich_db_password | default('dummy') }}"
+        labels:
+          app: immich
+      - name: paperless-db-password
+        data: "{{ paperless_db_password | default('dummy') }}"
+        labels:
+          app: paperless
+      - name: koito-db-password
+        data: "{{ koito_db_password | default('dummy') }}"
+        labels:
+          app: koito
+      - name: koito-db-url
+        data: postgres://postgres:{{ koito_db_password | default('dummy') }}@localhost:5432/koitodb
+        labels:
+          app: koito
+      - name: ddns-config
+        data: |
+          {
+            "settings": [
+              {
+                "provider": "he",
+                "domain": "srv.genevievemendoza.com",
+                "password": " {{ ddns_password | default('dummy') }}"
+              }
+            ]
+          }
+    podman_quadlet_specs:
+      # in dependency order, so volumes/pods must be created first
+      - file_src: "{{ project_dir }}/templates/pods/ddns.container"
+      - file_src: "{{ project_dir }}/templates/pods/syncthing.container"
+      - file_src: "{{ project_dir }}/templates/pods/services.network"
+      - file_src: "{{ project_dir }}/templates/pods/caddy/caddy-config.volume"
+      - file_src: "{{ project_dir }}/templates/pods/caddy/caddy-data.volume"
+      - template_src: "{{ project_dir }}/templates/pods/caddy/caddy.container.j2"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-db.volume"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-model-cache.volume"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich.pod"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-database.container"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-redis.container"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-machine-learning.container"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-server.container"
+      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux-db.volume"
+      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux.pod"
+      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux-pg.container"
+      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux.container"
+      - file_src: "{{ project_dir }}/templates/pods/navidrome/navidrome.pod"
+      - file_src: "{{ project_dir }}/templates/pods/navidrome/navidrome.container"
+      - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.volume"
+      - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.container"
+      - file_src: "{{ project_dir }}/templates/pods/koito/koito.volume"
+      - file_src: "{{ project_dir }}/templates/pods/koito/koito-db.volume"
+      - file_src: "{{ project_dir }}/templates/pods/koito/koito.pod"
+      - file_src: "{{ project_dir }}/templates/pods/koito/koito-db.container"
+      - file_src: "{{ project_dir }}/templates/pods/koito/koito.container"

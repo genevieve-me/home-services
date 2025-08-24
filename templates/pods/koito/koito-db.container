@@ -1,0 +1,13 @@
+[Container]
+Pod=koito.pod
+ContainerName=koito-psql
+Label=app=koito
+AutoUpdate=registry
+Image=docker.io/library/postgres:17-trixie
+Exec=-c listen_addresses=127.0.0.1
+Environment=POSTGRES_DB=koitodb
+Secret=koito-db-password,type=env,target=POSTGRES_PASSWORD
+Volume=koito-db.volume:/var/lib/postgresql/data
+
+[Service]
+Restart=always

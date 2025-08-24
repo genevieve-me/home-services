@@ -1,0 +1,13 @@
+---
+- name: SSH
+  import_playbook: ssh.yml
+- name: Firewall
+  import_playbook: firewall.yml
+- name: ZFS
+  import_playbook: zfs.yml
+- name: Music
+  import_playbook: music.yml
+- name: Pods
+  import_playbook: pods.yml
+- name: Journald
+  import_playbook: journald.yml

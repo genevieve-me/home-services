@@ -1,0 +1,13 @@
+---
+- name: Configure log rotation for system
+  hosts: home
+  become: true
+  vars:
+    journald_persistent: true
+    journald_max_disk_size: 1024 # 1GB in megabytes
+    journald_keep_free: 10240 # 10GB in megabytes
+    journald_max_file_size: 100 # 100MB in megabytes
+    journald_max_retention: 43200 # 30 days in minutes
+    journald_compression: true
+  roles:
+    - linux-system-roles.journald

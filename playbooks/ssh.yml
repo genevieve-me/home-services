@@ -1,0 +1,36 @@
+---
+- name: Configure SSH security settings
+  hosts: home
+  become: true
+  tasks:
+    - name: Ensure SSH config directory exists
+      ansible.builtin.file:
+        path: "/etc/ssh/sshd_config.d"
+        state: "directory"
+        owner: "root"
+        group: "root"
+        mode: "0755"
+
+    - name: Configure SSH to disable password authentication
+      ansible.builtin.lineinfile:
+        path: "/etc/ssh/sshd_config.d/50-cloud-init.conf"
+        regexp: "^#?PasswordAuthentication"
+        line: "PasswordAuthentication no"
+        state: "present"
+        owner: "root"
+        group: "root"
+        mode: "0600"
+        create: true
+      notify:
+        - Restart sshd
+
+    - name: Validate SSH configuration
+      ansible.builtin.command:
+        cmd: "sshd -t"
+      changed_when: false
+
+  handlers:
+    - name: Restart sshd
+      ansible.builtin.systemd_service:
+        name: "sshd"
+        state: "restarted"

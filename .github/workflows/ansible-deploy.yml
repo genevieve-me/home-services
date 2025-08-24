@@ -1,0 +1,108 @@
+name: Deploy Home Services
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      ansible_tags:
+        description: "Ansible tags to run (optional)"
+        required: false
+        type: string
+
+concurrency:
+  group: deploy-home-services-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  ANSIBLE_FORCE_COLOR: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    outputs:
+      playbooks: ${{ steps.changes.outputs.playbooks }}
+      templates: ${{ steps.changes.outputs.templates }}
+      config: ${{ steps.changes.outputs.config }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            config:
+              - 'inventory.ini'
+              - 'vars.yml'
+              - 'vars.vault.yml'
+              - 'collection-requirements.yml'
+              - '.github/**'
+
+            playbooks:
+              - 'playbooks/**'
+
+            templates:
+              - 'templates/**'
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: |
+      always()
+        && !cancelled()
+        && (
+          github.event_name == 'workflow_dispatch' ||
+          needs.changes.outputs.playbooks == 'true' ||
+          needs.changes.outputs.templates == 'true' ||
+          needs.changes.outputs.config == 'true'
+        )
+
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.ANSIBLE_HOST }} >> ~/.ssh/known_hosts
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Ansible
+        run: |
+          pip install ansible
+
+      - name: Install Ansible collections
+        run: |
+          ansible-galaxy collection install -r collection-requirements.yml
+
+      - name: Install Ansible roles
+        run: |
+          ansible-galaxy role install linux-system-roles.podman
+
+      - name: Run Ansible playbook
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
+        run: |
+          ansible-playbook \
+            --vault-password-stdin \
+            -i inventory.ini \
+            playbooks/main.yml \
+            -v \
+            ${{ github.event.inputs.ansible_tags != '' && format('--tags {0}', github.event.inputs.ansible_tags) || '' }} \
+            <<< "$ANSIBLE_VAULT_PASSWORD"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/id_rsa

@@ -1,0 +1,147 @@
+# write my own role, copying liberally?
+https://github.com/githubixx/ansible-role-wireguard/blob/master/handlers/main.yml
+https://github.com/N-Storm/boringguard
+https://github.com/lablabs/ansible-collection-wireguard
+https://github.com/egor-tensin/setup-wireguard
+https://github.com/angristan/ansible-wireguard/blob/master/tasks/main.yml
+https://github.com/akutschi/ansible_wireguard/blob/main/tasks/server_configuration.yml
+https://github.com/erebe/personal-server/blob/master/README.md#wireguard
+https://www.wireguard.com/quickstart/
+https://low-level.wiki/diverse/wireguard.html
+
+Setting Up a Secure WireGuard Tunnel for GitHub Actions to Your Ubuntu Server
+
+You're on the right track with your plan to establish a secure WireGuard connection between your hosted GitHub CI runners and your Ubuntu server. Here is a comprehensive step-by-step guide to help you implement this "defense in depth" strategy for your Ansible playbooks.
+Step 1: Generate Cryptographic Keys
+
+First, you'll need to generate a private and public key pair for both your Ubuntu server (the target node) and the GitHub Actions runner (the CI worker).
+
+    On your Ubuntu Server:
+
+        Install WireGuard: sudo apt update && sudo apt install wireguard
+
+        Generate the keys: wg genkey | tee privatekey | wg pubkey > publickey
+
+        Secure the private key: sudo chown root:root privatekey && sudo chmod 600 privatekey
+
+        Move the keys to the WireGuard directory: sudo mv privatekey publickey /etc/wireguard/
+
+    For the GitHub Actions Runner:
+
+        You can generate these keys on your local machine as you won't have access to the runner's shell beforehand.
+
+        Generate the keys: wg genkey | tee ci_runner_privatekey | wg pubkey > ci_runner_publickey
+
+        You will use the contents of ci_runner_privatekey and ci_runner_publickey in the subsequent steps.
+
+Step 2: Store the Runner's Keys as GitHub Secrets
+
+To use the runner's keys in your GitHub workflow securely, you must store them as encrypted secrets.[1][2]
+
+    In your GitHub repository, navigate to Settings > Secrets and variables > Actions.
+
+    Click New repository secret.
+
+    Create a secret named WIREGUARD_PRIVATE_KEY and paste the contents of the ci_runner_privatekey file as the value.
+
+    Optionally, you can also store the runner's public key as a secret for easier access in your workflow, for example, as WIREGUARD_PUBLIC_KEY.
+
+Step 3: Bootstrap the WireGuard Setup on Your Ubuntu Server with Ansible
+
+Now, you'll configure the WireGuard interface on your Ubuntu server. Using an Ansible role for this is a great way to automate and maintain the configuration. The initial setup will need to be run from your development machine.
+
+There are several Ansible roles available for configuring WireGuard.[3][4][5][6] A well-documented option is lablabs.wireguard.[7]
+
+    Install the Ansible role: ansible-galaxy install lablabs.wireguard
+
+    Create an Ansible playbook (e.g., bootstrap_wireguard.yml) to configure your server. This playbook will:
+
+        Install WireGuard.
+
+        Create a WireGuard configuration file (/etc/wireguard/wg0.conf).
+
+        Define the server's WireGuard interface, including its private key and listening port.
+
+        Add the GitHub Actions runner as a peer, including its public key and the IP address it will use within the VPN.
+
+    Here is an example playbook using the lablabs.wireguard role:
+    code Yaml
+
+    IGNORE_WHEN_COPYING_START
+    IGNORE_WHEN_COPYING_END
+
+        
+    ---
+    - name: Configure WireGuard Server
+      hosts: your_ubuntu_server
+      become: true
+      vars:
+        wireguard_peers:
+          - name: github_runner
+            publickey: "PASTE_CI_RUNNER_PUBLIC_KEY_HERE"
+            allowed_ip: "10.0.0.2/32" # IP for the runner in the VPN
+      roles:
+        - role: lablabs.wireguard
+    ```    *Replace `"PASTE_CI_RUNNER_PUBLIC_KEY_HERE"` with the actual public key from `ci_runner_publickey`.*
+
+      
+
+    Run the playbook from your development machine to apply the configuration to your server.
+
+Step 4: Create the GitHub Actions Workflow
+
+The final step is to create your GitHub Actions workflow that establishes the WireGuard connection before running your Ansible playbook. You can use a pre-existing GitHub Action to simplify the setup of the WireGuard tunnel on the runner. [8][9]The egor-tensin/setup-wireguard action is a popular choice.
+
+Here's an example workflow file (.github/workflows/ansible-over-wireguard.yml):
+code Yaml
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+
+    
+name: Run Ansible Playbook over WireGuard
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up WireGuard
+        uses: egor-tensin/setup-wireguard@v1
+        with:
+          endpoint: ${{ secrets.WIREGUARD_ENDPOINT }} # e.g., your_server_ip:51820
+          endpoint_public_key: ${{ secrets.WIREGUARD_SERVER_PUBLIC_KEY }}
+          private_key: ${{ secrets.WIREGUARD_PRIVATE_KEY }}
+          allowed_ips: "10.0.0.1/32" # The server's VPN IP
+          ips: "10.0.0.2/24" # The runner's VPN IP
+
+      - name: Run Ansible Playbook
+        uses: ansible-actions/ansible-playbook-action@v1
+        with:
+          playbook: your-playbook.yml
+          inventory: |
+            [your_target_group]
+            10.0.0.1 ansible_user=your_user # Use the WireGuard IP of your server
+
+          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+  
+
+Workflow Secrets to Add to Your GitHub Repository:
+
+    WIREGUARD_ENDPOINT: The public IP address and WireGuard port of your Ubuntu server (e.g., 123.45.67.89:51820).
+
+    WIREGUARD_SERVER_PUBLIC_KEY: The public key of your Ubuntu server (from /etc/wireguard/publickey).
+
+    WIREGUARD_PRIVATE_KEY: The private key you generated for the GitHub Actions runner.
+
+    SSH_PRIVATE_KEY: The SSH private key that corresponds to the public key authorized on your Ubuntu server for your Ansible user.
+
+By following these steps, you will have a robust CI/CD pipeline that leverages a secure WireGuard tunnel to protect your SSH connection, significantly enhancing your overall security posture.
+

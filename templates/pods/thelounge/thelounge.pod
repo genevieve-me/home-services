@@ -1,0 +1,9 @@
+[Pod]
+PodName=thelounge
+Network=services.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

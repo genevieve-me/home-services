@@ -1,0 +1,10 @@
+[Container]
+Pod=paperless
+ContainerName=paperless_ngx_cache
+Label=app=paperless
+AutoUpdate=registry
+Image=ghcr.io/valkey-io/valkey:8-bookworm
+Volume=redisdata:/data
+
+[Service]
+Restart=always

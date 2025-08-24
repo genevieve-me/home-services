@@ -1,0 +1,4 @@
+---
+project_dir: lookup('ansible.builtin.env', 'CI_PROJECT_DIR', default= inventory_dir )
+caddy_http_port: 10080
+caddy_https_port: 10443

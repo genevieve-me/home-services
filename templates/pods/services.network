@@ -1,0 +1,9 @@
+[Network]
+NetworkName=home-services
+Subnet=10.89.0.0/16
+# to create ipv6-only, pass an ipv6 CIDR
+# Subnet=fd01:2345::/64
+# should imply
+# Gateway=fd01:2345::1
+# do not use IPv6=True, that actually means dual-stack!
+# and then use IP6= in .container files

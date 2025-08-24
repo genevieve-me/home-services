@@ -1,0 +1,7 @@
+[Container]
+ContainerName=syncthing
+AutoUpdate=registry
+Image=docker.io/syncthing/syncthing:2.0
+Volume=/data/Sync:/data-syncthing
+# tunnel into server to access port, since it's not opened in firewall
+PublishPort=8384:8384/tcp

@@ -1,0 +1,10 @@
+[Pod]
+PodName=navidrome
+Network=services.network
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=900

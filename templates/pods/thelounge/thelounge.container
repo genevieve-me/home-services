@@ -1,0 +1,13 @@
+[Unit]
+Description=The Lounge
+
+[Container]
+Pod=thelounge
+ContainerName=thelounge
+Label=app=thelounge
+AutoUpdate=registry
+Image=ghcr.io/thelounge/thelounge:4
+Volume=thelounge.volume:/var/opt/thelounge
+
+[Service]
+Restart=always

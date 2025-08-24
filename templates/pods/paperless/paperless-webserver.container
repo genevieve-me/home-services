@@ -1,0 +1,23 @@
+[Unit]
+Requires=db.service broker.service
+After=db.service broker.service
+
+[Container]
+Pod=paperless
+ContainerName=paperless_ngx
+Label=app=paperless
+AutoUpdate=registry
+Image=ghcr.io/paperless-ngx/paperless-ngx:2.18
+Environment=PAPERLESS_REDIS=redis://localhost:6379 PAPERLESS_DBHOST=localhost
+Environment=PAPERLESS_CONSUMER_DISABLE=true
+Secret=paperless-db-password,type=env,target=PAPERLESS_DBPASS
+# "You can set PAPERLESS_MEDIA_ROOT and PAPERLESS_DATA_DIR to the same folder"
+# https://docs.paperless-ngx.com/configuration/#PAPERLESS_MEDIA_ROOT
+Volume=/data/paperless/data:/usr/src/paperless/data
+Volume=/data/paperless:/usr/src/paperless/media
+Volume=/data/paperless/export:/usr/src/paperless/export
+# disabled by env var
+# Volume=/data/paperless/consume:/usr/src/paperless/consume
+
+[Service]
+Restart=always

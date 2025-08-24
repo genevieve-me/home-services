@@ -1,0 +1,17 @@
+name: Ansible Lint
+on:
+  push:
+    paths:
+      - ansible/**
+    branches: ["main"]
+  # pull_request:
+  #   branches: [main]
+jobs:
+  ansible-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@v25.8.1
+        with:
+          targets: "ansible/"

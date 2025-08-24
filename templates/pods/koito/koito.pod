@@ -1,0 +1,9 @@
+[Pod]
+PodName=koito
+Network=services.network
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=always

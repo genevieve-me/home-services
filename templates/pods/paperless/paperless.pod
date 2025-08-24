@@ -1,0 +1,9 @@
+[Pod]
+PodName=paperless
+Network=services.network
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-failure

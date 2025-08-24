@@ -1,0 +1,17 @@
+[Container]
+Pod=immich.pod
+# match the default IMMICH_MACHINE_LEARNING_URL
+# the container name still DNS resolves within the pod, just to ::1
+# see also: https://github.com/immich-app/immich/discussions/6630
+ContainerName=immich-machine-learning
+Label=app=immich
+Image=ghcr.io/immich-app/immich-machine-learning:v1.139.2-openvino
+Volume=immich-model-cache.volume:/cache
+# for HW accel
+Volume=/dev/bus/usb:/dev/bus/usb
+AddDevice=/dev/dri:/dev/dri
+# not allowed in rootless
+# PodmanArgs=--device-cgroup-rule 'c 189:* rwm'
+# so we add user running container to render group
+# same effect as Annotation="run.oci.keep_original_groups=1" ?
+GroupAdd=keep-groups

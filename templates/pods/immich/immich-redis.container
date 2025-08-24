@@ -1,0 +1,8 @@
+[Container]
+Pod=immich.pod
+ContainerName=immich_redis
+Label=app-immich
+AutoUpdate=registry
+Image=ghcr.io/valkey-io/valkey:8-bookworm
+Exec=valkey-server --supervised systemd
+Notify=true

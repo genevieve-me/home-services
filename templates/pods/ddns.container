@@ -1,0 +1,7 @@
+[Container]
+ContainerName=ddns_updater
+AutoUpdate=registry
+Image=ghcr.io/qdm12/ddns-updater:2
+Secret=ddns-config,type=file,target=/updater/data/config.json
+# has a minimal web UI on port 8000, but might as well just look at logs
+# PublishPort=81234:8000/tcp

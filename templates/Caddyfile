@@ -1,0 +1,24 @@
+music.genevievemendoza.com {
+  # transparent proxy + websocket support + letsencrypt TLS
+  reverse_proxy navidrome:4533
+}
+feeds.genevievemendoza.com {
+  # to customize, set LISTEN_ADDR env for miniflux
+  reverse_proxy miniflux:8080
+}
+photos.genevievemendoza.com {
+  reverse_proxy immich:2283
+}
+nextcloud.genevievemendoza.com {
+  # if you don't give it a PodName, need to use this systemd- default
+  reverse_proxy systemd-nextcloud:9000
+}
+irc.genevievemendoza.com {
+  reverse_proxy thelounge:9000
+}
+koito.genevievemendoza.com {
+  reverse_proxy koito:4110
+}
+seshat.genevievemendoza.com {
+  reverse_proxy paperless_ngx:8000
+}
