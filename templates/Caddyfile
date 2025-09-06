@@ -10,8 +10,9 @@ photos.genevievemendoza.com {
   reverse_proxy immich:2283
 }
 nextcloud.genevievemendoza.com {
-  # if you don't give it a PodName, need to use this systemd- default
-  reverse_proxy systemd-nextcloud:9000
+  # container started by AIO via socket with this name
+  # (not pointing to a PodName or systemd-foo default name like others)
+  reverse_proxy nextcloud-aio-apache:11000
 }
 irc.genevievemendoza.com {
   reverse_proxy thelounge:9000

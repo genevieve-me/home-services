@@ -92,6 +92,8 @@
       - file_src: "{{ project_dir }}/templates/pods/caddy/caddy-config.volume"
       - file_src: "{{ project_dir }}/templates/pods/caddy/caddy-data.volume"
       - template_src: "{{ project_dir }}/templates/pods/caddy/caddy.container.j2"
+      - file_src: "{{ project_dir }}/templates/pods/nextcloud/nextcloud_aio_mastercontainer.volume"
+      - file_src: "{{ project_dir }}/templates/pods/nextcloud/nextcloud-aio.container"
       - file_src: "{{ project_dir }}/templates/pods/immich/immich-db.volume"
       - file_src: "{{ project_dir }}/templates/pods/immich/immich-model-cache.volume"
       - file_src: "{{ project_dir }}/templates/pods/immich/immich.pod"

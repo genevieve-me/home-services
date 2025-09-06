@@ -1,0 +1,14 @@
+---
+- name: Configure Nextcloud AIO
+  hosts: home
+  tasks:
+    - name: Create Nextcloud data directory
+      ansible.builtin.file:
+        path: "/data/Nextcloud"
+        state: "directory"
+        mode: "0755"
+
+    - name: Set Nextcloud data directory permissions
+      ansible.builtin.command:
+        cmd: "podman unshare chown -R 33:0 /data/Nextcloud/"
+      changed_when: true

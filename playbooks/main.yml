@@ -7,6 +7,8 @@
   import_playbook: zfs.yml
 - name: Music
   import_playbook: music.yml
+- name: Nextcloud
+  import_playbook: nextcloud.yml
 - name: Pods
   import_playbook: pods.yml
 - name: Journald

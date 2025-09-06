@@ -1,0 +1,42 @@
+[Container]
+ContainerName=nextcloud-aio-mastercontainer
+Image=ghcr.io/nextcloud-releases/all-in-one:latest
+Pull=missing
+RunInit=true
+
+Environment=APACHE_PORT=11000 
+Environment=APACHE_IP_BINDING=127.0.0.1 
+Environment=APACHE_ADDITIONAL_NETWORK=home-services 
+# need to `podman unshare chown -R 33:0 /data/Nextcloud/`
+Environment=NEXTCLOUD_DATADIR=/data/Nextcloud 
+Environment=NEXTCLOUD_ENABLE_DRI_DEVICE=true 
+Environment=SKIP_DOMAIN_VALIDATION=true 
+Environment=WATCHTOWER_DOCKER_SOCKET_PATH=%t/podman/podman.sock 
+
+Volume=nextcloud_aio_mastercontainer.volume:/mnt/docker-aio-config 
+Volume=%t/podman/podman.sock:/var/run/docker.sock:ro
+
+Network=services.network
+
+Notify=healthy
+
+[Unit]
+Description=Nextcloud AIO
+Requires=podman.socket
+
+[Service]
+Restart=on-failure
+# Below command should only run after mastercontainer is healthy, which is ensured by Notify=healthy above.
+ExecStartPost=/usr/bin/podman exec --env START_CONTAINERS=1 nextcloud-aio-mastercontainer /daily-backup.sh
+ExecStop=/usr/bin/bash -c 'if podman container exists nextcloud-aio-mastercontainer ; then \
+                             podman exec --env STOP_CONTAINERS=1 nextcloud-aio-mastercontainer /daily-backup.sh; \
+                           fi'
+ExecStop=/usr/bin/bash -c 'while podman ps --format "{{.Names}}" | grep -v nextcloud-aio-mastercontainer | grep nextcloud-aio ; do \
+                             echo "nextcloud-aio-* containers still running. Attempting to stop them manually."; \
+                             podman ps --format "{{.Names}}" | grep -v nextcloud-aio-mastercontainer | grep nextcloud-aio | xargs -r -L1 podman stop; sleep 10s; \
+                           done'
+TimeoutStartSec=600
+TimeoutStopSec=600
+
+[Install]
+WantedBy=default.target

@@ -26,7 +26,10 @@ The repository includes a GitHub Actions workflow (`.github/workflows/ansible-de
 * Could use FCOS or uCore, but it's low maintenance so Ansible works OK
     * Out of curiosity, may experiment with PXE network booting to provision server at some point
 
-ZFS:
+#### Manual Steps
+
+**ZFS**
+
 - created a zfs pool (`tank`) directly on one HDD
 - Can replicate with `zpool create -o ashift=12 -O recordsize=256K -O compression=zstd -O atime=off tank /dev/sda1`
 - ashift=12 is recommended: <https://openzfs.github.io/openzfs-docs/Performance%20and%20Tuning/Hardware.html#sector-size>
@@ -45,9 +48,31 @@ sudo touch /etc/zfs/zfs-list.cache/tank
 sudo zfs set canmount=on tank/data
 ```
 
+**Networking**
+
 For convenience, I gave `varda` (home server) a static internal IP on my router's DHCP server,
 and of course I had to enable port forwarding for IPv4 HTTP(S) to it.
 SSH is only allowed from internal network for now, I should probably set up Wireguard or Tailscale.
+
+Also, all the DNS for the domain must of course be set up via your nameservers.
+
+**Nextcloud admin interface certificate**
+
+`nextcloud-aio-mastercontainer` uses a self-signed cert.
+
+For the initial configuration, you can disable TLS verification if necessary:
+
+```
+	reverse_proxy nextcloud-aio-mastercontainer:8080 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+```
+
+but the ideal way is to get Nextcloud's self-generated certificate by copying it into the caddy-data volume:
+`podman cp nextcloud-aio-mastercontainer:/mnt/docker-aio-config/certs/ssl.crt caddy-reverse-proxy:/data/nextcloud-admin-ssl.crt`
+where the Caddyfile expects to find it.
 
 ### Security
 
