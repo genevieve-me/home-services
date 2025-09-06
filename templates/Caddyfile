@@ -14,6 +14,16 @@ nextcloud.genevievemendoza.com {
   # (not pointing to a PodName or systemd-foo default name like others)
   reverse_proxy nextcloud-aio-apache:11000
 }
+nextcloud-admin.genevievemendoza.com {
+  reverse_proxy nextcloud-aio-mastercontainer:8080 {
+    transport http {
+      # tls_trust_pool file /data/nextcloud-admin-ssl.crt
+      # tls_server_name nextcloud.local
+      # Skip TLS verification because cert has no SAN field, so the above doesn't work
+      tls_insecure_skip_verify
+    }
+  }
+}
 irc.genevievemendoza.com {
   reverse_proxy thelounge:9000
 }
