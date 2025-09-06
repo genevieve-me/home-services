@@ -1,35 +1,30 @@
 music.genevievemendoza.com {
-  # transparent proxy + websocket support + letsencrypt TLS
-  reverse_proxy navidrome:4533
+	# transparent proxy + websocket support + letsencrypt TLS
+	reverse_proxy navidrome:4533
 }
 feeds.genevievemendoza.com {
-  # to customize, set LISTEN_ADDR env for miniflux
-  reverse_proxy miniflux:8080
+	# to customize, set LISTEN_ADDR env for miniflux
+	reverse_proxy miniflux:8080
 }
 photos.genevievemendoza.com {
-  reverse_proxy immich:2283
+	reverse_proxy immich:2283
 }
 nextcloud.genevievemendoza.com {
-  # container started by AIO via socket with this name
-  # (not pointing to a PodName or systemd-foo default name like others)
-  reverse_proxy nextcloud-aio-apache:11000
+	reverse_proxy nextcloud-aio-apache:11000
 }
 nextcloud-admin.genevievemendoza.com {
-  reverse_proxy nextcloud-aio-mastercontainer:8080 {
-    transport http {
-      # tls_trust_pool file /data/nextcloud-admin-ssl.crt
-      # tls_server_name nextcloud.local
-      # Skip TLS verification because cert has no SAN field, so the above doesn't work
-      tls_insecure_skip_verify
-    }
-  }
+	reverse_proxy https://nextcloud-aio-mastercontainer:8080 {
+		transport http {
+			# tls_trust_pool file /data/nextcloud-admin-ssl.crt
+			# tls_server_name nextcloud.local
+			# Skip TLS verification because cert has no SAN field, so the above doesn't work
+			tls_insecure_skip_verify
+		}
+	}
 }
 irc.genevievemendoza.com {
-  reverse_proxy thelounge:9000
+	reverse_proxy thelounge:9000
 }
 koito.genevievemendoza.com {
-  reverse_proxy koito:4110
-}
-seshat.genevievemendoza.com {
-  reverse_proxy paperless_ngx:8000
+	reverse_proxy koito:4110
 }
