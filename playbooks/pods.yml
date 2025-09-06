@@ -65,6 +65,14 @@
         data: postgres://postgres:{{ koito_db_password | default('dummy') }}@localhost:5432/koitodb
         labels:
           app: koito
+      - name: miniflux-db-password
+        data: "{{ miniflux_db_password | default('dummy') }}"
+        labels:
+          app: miniflux
+      - name: miniflux-database-url
+        data: "postgres://miniflux:{{ miniflux_db_password | default('dummy') }}@localhost/miniflux?sslmode=disable"
+        labels:
+          app: miniflux
       - name: ddns-config
         data: |
           {

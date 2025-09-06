@@ -10,8 +10,8 @@ The repository includes a GitHub Actions workflow (`.github/workflows/ansible-de
 - Uses `--vault-password-stdin` to securely pass the vault password without creating filesystem files
 - Requires these GitHub Secrets to be configured:
   - `SSH_PRIVATE_KEY`: SSH private key for server access
+  - `SSH_HOST_PUBLIC_KEY`: The server's public SSH host key (from `/etc/ssh/ssh_host_ed25519_key.pub` or similar)
   - `VAULT_PASSWORD`: Ansible vault password
-  - `ANSIBLE_HOST`: Target server hostname/IP
 
 ### Local development
 

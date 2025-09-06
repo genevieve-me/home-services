@@ -6,7 +6,8 @@ AutoUpdate=registry
 Image=docker.io/library/postgres:17-trixie
 Exec=-c listen_addresses=127.0.0.1
 Notify=healthy
-Environment=POSTGRES_USER=miniflux POSTGRES_PASSWORD=secret POSTGRES_DB=miniflux
+Environment=POSTGRES_USER=miniflux POSTGRES_DB=miniflux
+Secret=miniflux-db-password,type=env,target=POSTGRES_PASSWORD
 Volume=miniflux-db.volume:/var/lib/postgresql/data
 # healthcheck is very spammy, disable it? https://github.com/containers/podman/issues/24003
 HealthCmd=["pg_isready","-U","miniflux"]
