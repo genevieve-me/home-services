@@ -1,16 +1,56 @@
 ---
-# TODO: see varda/backups/restic.service
-# - name: Backup
-#   script: |
-#     #!/usr/bin/env sh
-#     # backed up currently: /data/Music
-#     if [ -z $1 ]; then
-#     	echo "Missing argument: pass the directory to backup! Quitting";
-#     	exit 1;
-#     fi;
-#     if [ "$#" -ge 2 ]; then
-#     	echo "Too many args! Would skip $2. Quitting";
-#     	exit 1;
-#     fi;
-#     echo running on "$1";
-#      RESTIC_PASSWORD="" restic -r sftp:de3946@de3946.rsync.net:restic backup "$1";
+- name: Configure Restic Backup
+  hosts: home
+  become: true
+  tasks:
+    - name: Install restic
+      ansible.builtin.package:
+        name: "restic"
+        state: "present"
+
+    - name: Create backup script
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../templates/backup.sh.j2"
+        dest: "/usr/local/bin/backup.sh"
+        owner: "root"
+        group: "root"
+        mode: "0755"
+
+    - name: Create systemd service for restic backup
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../templates/restic-backup.service.j2"
+        dest: "/etc/systemd/system/restic-backup.service"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+      notify: Reload systemd
+
+    - name: Create systemd timer for restic backup
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/restic-backup.timer"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Run restic backup weekly
+
+          [Timer]
+          OnCalendar=weekly
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+      notify: Reload systemd
+
+    - name: Enable and start the backup timer
+      ansible.builtin.systemd:
+        name: "restic-backup.timer"
+        enabled: true
+        state: "started"
+        daemon_reload: true
+
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true

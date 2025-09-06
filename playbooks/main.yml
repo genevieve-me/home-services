@@ -11,3 +11,5 @@
   import_playbook: pods.yml
 - name: Journald
   import_playbook: journald.yml
+- name: Backup
+  import_playbook: backup.yml

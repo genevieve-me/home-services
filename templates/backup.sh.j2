@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DUMP_DIR="/data/dumps"
+mkdir -p "${DUMP_DIR}"
+
+echo "Dumping databases..."
+podman exec miniflux-pg pg_dumpall -U miniflux > "${DUMP_DIR}/miniflux-db-backup.sql"
+podman exec paperless_ngx_db pg_dumpall -U paperless > "${DUMP_DIR}/paperless-db-backup.sql"
+podman exec koito-psql pg_dumpall -U postgres > "${DUMP_DIR}/koito-db-backup.sql"
+echo "Database dumps complete."
+
+echo "Exporting koito volume..."
+podman volume export koito.volume > "${DUMP_DIR}/koito-volume.tar"
+echo "Koito volume export complete."
+
+echo "Running restic backup..."
+restic backup \
+    --repo "sftp:de3946@de3946.rsync.net:restic" \
+    --verbose \
+    /data/photos \
+    /data/Music \
+    /data/navidrome_data \
+    /data/Sync \
+    /data/paperless \
+    /data/beets.db \
+    "${DUMP_DIR}"
+
+echo "Backup complete."
+
+# Clean up old dumps
+find "${DUMP_DIR}" -type f -mtime +7 -delete
