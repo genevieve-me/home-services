@@ -1,5 +1,6 @@
 [Unit]
 Description=Restic Backup Service
+OnFailure=restic-backup-failure.service
 
 [Service]
 Type=oneshot

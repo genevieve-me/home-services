@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "Checking restic repository integrity..."
+restic check --repo "sftp:de3946@de3946.rsync.net:restic"
+echo "Check complete."
+
 DUMP_DIR="/data/dumps"
 mkdir -p "${DUMP_DIR}"
 
@@ -36,3 +40,6 @@ echo "Backup complete."
 
 # Clean up old dumps
 find "${DUMP_DIR}" -type f -mtime +7 -delete
+
+# Send success notification
+/usr/bin/curl -H "Title: Backup Successful" -d "Home backup completed successfully" https://{{ ntfy_subdomain }}.{{ base_domain }}/backup

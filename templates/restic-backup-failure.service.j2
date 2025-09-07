@@ -1,0 +1,6 @@
+[Unit]
+Description=Restic Backup Failure Notification
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/curl -H "Title: Backup Failed" -d "Restic backup unit failed. Check journalctl for logs." https://{{ ntfy_subdomain }}.{{ base_domain }}/backup
