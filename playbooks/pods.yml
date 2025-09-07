@@ -79,7 +79,7 @@
             "settings": [
               {
                 "provider": "he",
-                "domain": "srv.genevievemendoza.com",
+                "domain": "srv.{{ base_domain }}",
                 "password": " {{ ddns_password | default('dummy') }}"
               }
             ]
@@ -110,7 +110,7 @@
       - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux-db.volume"
       - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux.pod"
       - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux-pg.container"
-      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux.container"
+      - template_src: "{{ project_dir }}/templates/pods/miniflux/miniflux.container.j2"
       - file_src: "{{ project_dir }}/templates/pods/navidrome/navidrome.pod"
       - file_src: "{{ project_dir }}/templates/pods/navidrome/navidrome.container"
       - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.volume"
@@ -119,4 +119,4 @@
       - file_src: "{{ project_dir }}/templates/pods/koito/koito-db.volume"
       - file_src: "{{ project_dir }}/templates/pods/koito/koito.pod"
       - file_src: "{{ project_dir }}/templates/pods/koito/koito-db.container"
-      - file_src: "{{ project_dir }}/templates/pods/koito/koito.container"
+      - template_src: "{{ project_dir }}/templates/pods/koito/koito.container.j2"

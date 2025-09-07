@@ -1,18 +1,18 @@
-music.genevievemendoza.com {
+music.{{ base_domain }} {
 	# transparent proxy + websocket support + letsencrypt TLS
 	reverse_proxy navidrome:4533
 }
-feeds.genevievemendoza.com {
+feeds.{{ base_domain }} {
 	# to customize, set LISTEN_ADDR env for miniflux
 	reverse_proxy miniflux:8080
 }
-photos.genevievemendoza.com {
+photos.{{ base_domain }} {
 	reverse_proxy immich:2283
 }
-nextcloud.genevievemendoza.com {
+nextcloud.{{ base_domain }} {
 	reverse_proxy nextcloud-aio-apache:11000
 }
-nextcloud-admin.genevievemendoza.com {
+nextcloud-admin.{{ base_domain }} {
 	reverse_proxy https://nextcloud-aio-mastercontainer:8080 {
 		transport http {
 			# tls_trust_pool file /data/nextcloud-admin-ssl.crt
@@ -22,10 +22,10 @@ nextcloud-admin.genevievemendoza.com {
 		}
 	}
 }
-irc.genevievemendoza.com {
+irc.{{ base_domain }} {
 	reverse_proxy thelounge:9000
 }
-koito.genevievemendoza.com {
+koito.{{ base_domain }} {
 	reverse_proxy koito:4110
 }
 

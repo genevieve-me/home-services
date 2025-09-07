@@ -7,7 +7,7 @@ Label=app=miniflux
 # AutoUpdate=registry
 Image=ghcr.io/miniflux/miniflux:2.2.12
 Secret=miniflux-database-url,type=env,target=DATABASE_URL
-Environment=BASE_URL=https://feeds.genevievemendoza.com RUN_MIGRATIONS=1 POLLING_FREQUENCY=300
+Environment=BASE_URL=https://feeds.{{ base_domain }} RUN_MIGRATIONS=1 POLLING_FREQUENCY=300
 # on the first run you must also specify env vars:
 # CREATE_ADMIN=1 ADMIN_USERNAME=admin ADMIN_PASSWORD=test123
 # then log in and change the credentials yourself
