@@ -42,6 +42,20 @@
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: "0644"
+    - name: "Ensure ntfy config dir exists"
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/ntfy-config"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0755"
+    - name: Copy ntfy config
+      ansible.builtin.template:
+        src: "{{ project_dir }}/templates/pods/ntfy/server.yml.j2"
+        dest: "/home/{{ ansible_user }}/ntfy-config/server.yml"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0644"
   roles:
     - role: "linux-system-roles.podman"
   vars:

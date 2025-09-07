@@ -40,25 +40,14 @@ spec:
           persistentVolumeClaim:
             claimName: ntfy-cache
         - name: ntfy-config-volume
-          persistentVolumeClaim:
-            claimName: ntfy-config
+          hostPath:
+            path: /home/{{ ansible_user }}/ntfy-config
       restartPolicy: Always
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: ntfy-cache
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: ntfy-config
 spec:
   accessModes:
     - ReadWriteOnce

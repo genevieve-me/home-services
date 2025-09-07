@@ -1,0 +1,10 @@
+auth-file: "/var/cache/ntfy/user.db"
+auth-default-access: "deny-all"
+auth-users:
+  - "{{ ntfy_admin_user }}:{{ ntfy_admin_password }}:admin"
+  - "{{ ntfy_backup_user }}:{{ ntfy_backup_password }}:user"
+auth-access:
+  - "*:up*:wo"
+  - "backup-script:{{ ntfy_backup_topic }}:wo"
+auth-tokens:
+  - "backup-script:{{ ntfy_backup_token }}:Backup script"

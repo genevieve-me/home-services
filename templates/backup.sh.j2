@@ -42,4 +42,4 @@ echo "Backup complete."
 find "${DUMP_DIR}" -type f -mtime +7 -delete
 
 # Send success notification
-/usr/bin/curl -H "Title: Backup Successful" -d "Home backup completed successfully" https://{{ ntfy_subdomain }}.{{ base_domain }}/backup
+/usr/bin/curl -H "Authorization: Bearer {{ ntfy_backup_token }}" -H "Title: Backup Successful" -d "Home backup completed successfully" https://{{ ntfy_subdomain }}.{{ base_domain }}/{{ ntfy_backup_topic }}
