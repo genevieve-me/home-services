@@ -82,13 +82,8 @@ jobs:
         run: |
           pip install ansible
 
-      - name: Install Ansible collections
-        run: |
-          ansible-galaxy collection install -r collection-requirements.yml
-
-      - name: Install Ansible roles
-        run: |
-          ansible-galaxy role install linux-system-roles.podman
+      - name: Install Ansible dependencies
+        run: ansible-galaxy install -r requirements.yml
 
       - name: Run Ansible playbook
         env:

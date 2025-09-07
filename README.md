@@ -16,6 +16,7 @@ The repository includes a GitHub Actions workflow (`.github/workflows/ansible-de
 ### Local development
 
 - Ansible is most easily installed with pipx: `[uvx] pipx install --include-deps ansible`
+  - You must also `ansible-galaxy install -r requirements.yml`
 - To edit the ansible-vault secrets: `ansible-vault edit vars.vault.yml` (will prompt for password)
 
 ### Other server setup
