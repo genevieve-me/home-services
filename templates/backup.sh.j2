@@ -14,6 +14,10 @@ echo "Exporting koito volume..."
 podman volume export koito.volume > "${DUMP_DIR}/koito-volume.tar"
 echo "Koito volume export complete."
 
+echo "Exporting nextcloud master container volume..."
+podman volume export nextcloud_aio_mastercontainer > "${DUMP_DIR}/nextcloud_aio_mastercontainer-volume.tar"
+echo "Nextcloud volume export complete."
+
 echo "Running restic backup..."
 restic backup \
     --repo "sftp:de3946@de3946.rsync.net:restic" \
@@ -23,6 +27,7 @@ restic backup \
     /data/navidrome_data \
     /data/Sync \
     /data/Nextcloud \
+    /data/nextcloud-backups \
     /data/paperless \
     /data/beets.db \
     "${DUMP_DIR}"

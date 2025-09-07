@@ -1,19 +1,25 @@
 [Container]
 ContainerName=nextcloud-aio-mastercontainer
+# the container auto-updates itself, so no AutoUpdate or specific tag here
 Image=ghcr.io/nextcloud-releases/all-in-one:latest
 Pull=missing
 RunInit=true
 
-Environment=APACHE_PORT=11000 
-Environment=APACHE_IP_BINDING=127.0.0.1 
-Environment=APACHE_ADDITIONAL_NETWORK=home-services 
+# so that caddy can reverse proxy to the child apache container (itself proxying to nextcloud child)
+Environment=APACHE_ADDITIONAL_NETWORK=home-services
+Environment=APACHE_PORT=11000
+Environment=APACHE_IP_BINDING=127.0.0.1
 # need to `podman unshare chown -R 33:0 /data/Nextcloud/`
-Environment=NEXTCLOUD_DATADIR=/data/Nextcloud 
-Environment=NEXTCLOUD_ENABLE_DRI_DEVICE=true 
-Environment=SKIP_DOMAIN_VALIDATION=true 
-Environment=WATCHTOWER_DOCKER_SOCKET_PATH=%t/podman/podman.sock 
+Environment=NEXTCLOUD_DATADIR=/data/Nextcloud
+# hardware acceleration
+Environment=NEXTCLOUD_ENABLE_DRI_DEVICE=true
+# this should technically work, but I couldn't get it to
+# it's irrelevant since everything's behind Caddy
+Environment=SKIP_DOMAIN_VALIDATION=true
+# podman compatibility
+Environment=WATCHTOWER_DOCKER_SOCKET_PATH=%t/podman/podman.sock
 
-Volume=nextcloud_aio_mastercontainer.volume:/mnt/docker-aio-config 
+Volume=nextcloud_aio_mastercontainer.volume:/mnt/docker-aio-config
 Volume=%t/podman/podman.sock:/var/run/docker.sock:ro
 
 Network=services.network

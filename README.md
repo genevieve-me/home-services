@@ -54,25 +54,33 @@ For convenience, I gave `varda` (home server) a static internal IP on my router'
 and of course I had to enable port forwarding for IPv4 HTTP(S) to it.
 SSH is only allowed from internal network for now, I should probably set up Wireguard or Tailscale.
 
+### Nextcloud AIO Setup
+
+The Nextcloud AIO service is managed by Ansible. However, one manual step is required after the initial deployment:
+
+1.  Log into the Nextcloud AIO admin interface.
+2.  Navigate to the backup settings.
+3.  Set the "Local backup location" to `/data/nextcloud-backups`.
+
+The Ansible playbook automatically creates this directory and sets the correct permissions. Once this path is set in the AIO interface, Nextcloud's automated backups will be saved to this directory, which is then included in the weekly offsite Restic backup.
+
 Also, all the DNS for the domain must of course be set up via your nameservers.
 
-**Nextcloud admin interface certificate**
+**Nextcloud admin interface**
 
-`nextcloud-aio-mastercontainer` uses a self-signed cert.
+`nextcloud-aio-mastercontainer` uses a self-signed cert, so we have to
+disable TLS verification in Caddy.
 
-For the initial configuration, you can disable TLS verification if necessary:
-
-```
-	reverse_proxy nextcloud-aio-mastercontainer:8080 {
-		transport http {
-			tls_insecure_skip_verify
-		}
-	}
-```
-
-but the ideal way is to get Nextcloud's self-generated certificate by copying it into the caddy-data volume:
+Theoretically we could copy Nextcloud's self-generated certificate into the `caddy-data` volume:
 `podman cp nextcloud-aio-mastercontainer:/mnt/docker-aio-config/certs/ssl.crt caddy-reverse-proxy:/data/nextcloud-admin-ssl.crt`
-where the Caddyfile expects to find it.
+and it would work with the commented out Caddyfile configuration, but unfortunately
+this doesn't work because the Nextcloud self-signed cert doesn't have a SAN.
+
+Note also that the "Open Nextcloud AIO Interface" button in the admin settings
+of the nextcloud container creates a link based on where `nextcloud-aio-mastercontainer`
+detected it was running at the time it started `nextcloud-aio-nextcloud`.
+Therefore, if you changed subdomains or configuration without a full restart,
+or initially accessed the master container from localhost, you'll have to manually adjust the link.
 
 ### Security
 
