@@ -1,0 +1,67 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ntfy
+  name: ntfy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ntfy
+  template:
+    metadata:
+      annotations:
+        io.podman.annotations.infra.name: ntfy-pod
+      labels:
+        app: ntfy
+    spec:
+      containers:
+        - args:
+            - serve
+          env:
+            - name: TZ
+              value: America/New_York
+            - name: NTFY_LISTEN_HTTP
+              value: :8002
+          image: docker.io/binwiederhier/ntfy
+          volumeMounts:
+            - name: ntfy-cache-volume
+              mountPath: /var/cache/ntfy
+            - name: ntfy-config-volume
+              mountPath: /etc/ntfy
+          name: ntfy
+          ports:
+            - containerPort: 8002
+              protocol: TCP
+      volumes:
+        - name: ntfy-cache-volume
+          persistentVolumeClaim:
+            claimName: ntfy-cache
+        - name: ntfy-config-volume
+          persistentVolumeClaim:
+            claimName: ntfy-config
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ntfy-cache
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ntfy-config
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

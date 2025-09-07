@@ -28,3 +28,7 @@ irc.genevievemendoza.com {
 koito.genevievemendoza.com {
 	reverse_proxy koito:4110
 }
+
+{{ ntfy_subdomain }}.{{ base_domain }} {
+	reverse_proxy ntfy-pod:8002
+}
