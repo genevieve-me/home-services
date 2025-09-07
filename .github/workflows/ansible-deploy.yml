@@ -88,6 +88,7 @@ jobs:
       - name: Run Ansible playbook
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
+          CI_PROJECT_DIR: ${{ github.workspace }}
         run: |
           ansible-playbook \
             --vault-password-stdin \
