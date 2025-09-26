@@ -2,7 +2,7 @@
 Pod=immich.pod
 ContainerName=immich_server
 Label=app=immich
-Image=ghcr.io/immich-app/immich-server:v1.139.2
+Image=ghcr.io/immich-app/immich-server:v1.143.1
 Environment=DB_HOSTNAME=localhost REDIS_HOSTNAME=localhost
 Secret=immich-db-password,type=env,target=DB_PASSWORD
 # thumbnails and database dumps are also placed here
