@@ -12,13 +12,16 @@ echo "Dumping databases..."
 podman exec miniflux-pg pg_dumpall -U miniflux > "${DUMP_DIR}/miniflux-db-backup.sql"
 podman exec paperless_ngx_db pg_dumpall -U paperless > "${DUMP_DIR}/paperless-db-backup.sql"
 podman exec koito-psql pg_dumpall -U postgres > "${DUMP_DIR}/koito-db-backup.sql"
+# immich/nextcloud have automatic database dumps to their dirs, eg in /data/photos/backups
 echo "Database dumps complete."
 
-echo "Exporting koito volume..."
-podman volume export koito.volume > "${DUMP_DIR}/koito-volume.tar"
+echo "Exporting container data volumes..."
+podman volume export koito-data > "${DUMP_DIR}/koito-volume.tar"
 echo "Koito volume export complete."
-
-echo "Exporting nextcloud master container volume..."
+podman volume export koito-data > "${DUMP_DIR}/koito-volume.tar"
+echo "Koito volume export complete."
+podman volume export thelounge-data > "${DUMP_DIR}/thelounge-volume.tar"
+echo "thelounge volume export complete."
 podman volume export nextcloud_aio_mastercontainer > "${DUMP_DIR}/nextcloud_aio_mastercontainer-volume.tar"
 echo "Nextcloud volume export complete."
 

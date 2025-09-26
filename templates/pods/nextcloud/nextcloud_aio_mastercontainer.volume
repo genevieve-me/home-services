@@ -3,3 +3,4 @@ Description=Nextcloud AIO Master Container Volume
 
 [Volume]
 VolumeName=nextcloud_aio_mastercontainer
+Label=app=nextcloud

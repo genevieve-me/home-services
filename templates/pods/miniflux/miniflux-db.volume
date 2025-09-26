@@ -1,2 +1,3 @@
 [Volume]
+Label=app=miniflux
 VolumeName=miniflux-db
