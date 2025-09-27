@@ -9,7 +9,9 @@ AutoUpdate=registry
 Image=docker.io/deluan/navidrome:0.58.0
 Environment=ND_ADDRESS=0.0.0.0 ND_ENABLEINSIGHTSCOLLECTOR=false
 Environment=ND_AUTOTRANSCODEDOWNLOAD=true ND_ENABLESHARING=true ND_DEFAULTSHAREEXPIRATION=168h ND_SCANNER_SCHEDULE="0 0 1 * *"
+Environment=ND_BACKUP_PATH=/backup ND_BACKUP_SCHEDULE="0 4 * * 0" ND_BACKUP_COUNT=3
 # need to add token in the web UI
 Environment=ND_LISTENBRAINZ_BASEURL=http://koito:4110/apis/listenbrainz/1/
 Volume=/data/Music:/music
 Volume=/data/navidrome_data:/data
+Volume=/data/navidrome_backup:/backup
