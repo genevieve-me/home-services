@@ -90,13 +90,13 @@ jobs:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
           CI_PROJECT_DIR: ${{ github.workspace }}
         run: |
-          ansible-playbook \
-            --vault-password-stdin \
+          echo "$ANSIBLE_VAULT_PASSWORD" | \
+            ansible-playbook \
+            --vault-password-file=/bin/cat \
             -i inventory.ini \
             playbooks/main.yml \
             -v \
             ${{ github.event.inputs.ansible_tags != '' && format('--tags {0}', github.event.inputs.ansible_tags) || '' }} \
-            <<< "$ANSIBLE_VAULT_PASSWORD"
 
       - name: Cleanup
         if: always()
