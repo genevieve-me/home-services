@@ -2,10 +2,10 @@
 Description=ntfy pod from Kubernetes YAML
 After=network-online.target
 Wants=network-online.target
-Requires=home-services.network
 
 [Kube]
 Yaml=ntfy.yaml
+# will services.network work here?
 Network=home-services
 
 [Install]

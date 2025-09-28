@@ -5,6 +5,6 @@ auth-users:
   - "{{ ntfy_backup_user }}:{{ ntfy_backup_password }}:user"
 auth-access:
   - "*:up*:wo"
-  - "backup-script:{{ ntfy_backup_topic }}:wo"
+  - "{{ ntfy_backup_user }}:{{ ntfy_backup_topic }}:wo"
 auth-tokens:
-  - "backup-script:{{ ntfy_backup_token }}:Backup script"
+  - "{{ ntfy_backup_user }}:{{ ntfy_backup_token }}:Backup script"
