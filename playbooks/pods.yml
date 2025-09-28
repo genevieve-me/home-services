@@ -99,7 +99,7 @@
       - file_src: "{{ project_dir }}/templates/pods/caddy/caddy-config.volume"
       - file_src: "{{ project_dir }}/templates/pods/caddy/caddy-data.volume"
       - template_src: "{{ project_dir }}/templates/pods/caddy/caddy.container.j2"
-      - file_src: "{{ project_dir }}/templates/pods/ntfy/ntfy.yaml"
+      - template_src: "{{ project_dir }}/templates/pods/ntfy/ntfy.yaml.j2"
       - file_src: "{{ project_dir }}/templates/pods/ntfy/ntfy.kube"
       - file_src: "{{ project_dir }}/templates/pods/nextcloud/nextcloud_aio_mastercontainer.volume"
       - file_src: "{{ project_dir }}/templates/pods/nextcloud/nextcloud-aio.container"
