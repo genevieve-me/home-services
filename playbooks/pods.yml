@@ -49,6 +49,21 @@
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: "0644"
+    - name: Create mounted data directories
+      become: true
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /data/Music
+        - /data/navidrome_data
+        - /data/navidrome_backup
+        - /data/paperless
+        - /data/photos
+        - /data/Sync
   roles:
     - role: "linux-system-roles.podman"
   vars:
