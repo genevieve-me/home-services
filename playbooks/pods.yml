@@ -132,6 +132,7 @@
       - file_src: "{{ project_dir }}/templates/pods/navidrome/navidrome.pod"
       - file_src: "{{ project_dir }}/templates/pods/navidrome/navidrome.container"
       - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.volume"
+      - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.pod"
       - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.container"
       - file_src: "{{ project_dir }}/templates/pods/koito/koito.volume"
       - file_src: "{{ project_dir }}/templates/pods/koito/koito-db.volume"
