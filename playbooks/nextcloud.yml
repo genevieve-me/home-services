@@ -3,8 +3,11 @@
   hosts: home
   tasks:
     - name: Create Nextcloud data directory
+      become: true
       ansible.builtin.file:
         path: "/data/Nextcloud"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         state: "directory"
         mode: "0755"
 
@@ -14,11 +17,12 @@
       changed_when: true
 
     - name: Create Nextcloud backup directory
+      become: true
       ansible.builtin.file:
         path: "/data/nextcloud-backups"
         state: "directory"
-        owner: "root"
-        group: "root"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         mode: "0755"
 
     - name: Set Nextcloud backup directory permissions
