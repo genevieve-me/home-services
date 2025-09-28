@@ -27,7 +27,9 @@ table inet filter {
         # Allow incoming traffic on specific ports with rate limiting for new connections
         # Existing connections are matched above by established/related
         tcp dport { 22, 22000 } ct state new limit rate 5/minute accept # SSH, Syncthing TCP
-        tcp dport { 80, 443 } ct state new limit rate 15/minute accept # HTTP, HTTPS
+        # HTTP/HTTPS on redirected reverse proxy ports
+        # keep 80/443 for locally-originating connections and for clarity
+        tcp dport { 80, 443, {{ caddy_http_port }}, {{ caddy_https_port }} } ct state new limit rate 15/minute accept
         udp dport { 21027, 22000 } accept # Syncthing Discovery and QUIC
 
         # Log and drop everything else
@@ -51,7 +53,6 @@ table inet podman-nat {
     chain prerouting {
         type nat hook prerouting priority dstnat; policy accept;
         # Redirect HTTP/HTTPS to rootless Caddy container
-        # could these ports be an ansible variable that also goes into caddy.container?
         tcp dport 80 redirect to :{{ caddy_http_port }}
         tcp dport 443 redirect to :{{ caddy_https_port }}
     }
