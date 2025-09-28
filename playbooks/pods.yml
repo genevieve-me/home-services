@@ -21,13 +21,6 @@
           ansible.builtin.user:
             name: "root"
             password_lock: true
-    - name: Find repository root
-      ansible.builtin.include_vars:
-        file: vars.yml
-        name: project_dir
-    - name: Load secrets
-      ansible.builtin.include_vars:
-        file: vars.vault.yml
     - name: Enable podman auto update service
       ansible.builtin.systemd_service:
         scope: "user"
