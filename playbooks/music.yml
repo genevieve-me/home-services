@@ -6,15 +6,17 @@
     - name: Install deps
       become: true
       ansible.builtin.package:
-        name: "ffmpeg imagemagick"
+        name:
+          - ffmpeg
+          - imagemagick
         state: "present"
     # - name: Install beets
     #   https://docs.ansible.com/ansible/latest/collections/community/general/pipx_module.html
     #   pipx install beets[lastgenre,fetchart,chroma]
     - name: Copy beets config
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/beets/"
-        dest: "/home/genevieve/.config/beets"
-        owner: "genevieve"
-        group: "genevieve"
+        src: "{{ project_dir }}/beets/"
+        dest: "/home/{{ ansible_user }}/.config/beets"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         mode: "0644"

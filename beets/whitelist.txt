@@ -1,0 +1,152 @@
+african
+afrobeat
+benga
+bikutsi
+cape jazz
+chimurenga
+coupé-décalé
+isicathamiya
+kizomba
+kuduro
+kwaito
+makossa
+marrabenta
+mbalax
+morna
+raï
+sega
+soukous
+taarab
+asian
+c-pop
+j-pop
+k-pop
+indian pop
+avant-garde
+lo-fi
+musique concrète
+blues
+british blues
+contemporary r&b
+delta blues
+electric blues
+jump blues
+memphis blues
+piano blues
+swamp blues
+caribbean and latin american
+bachata
+bossa nova
+samba
+calypso
+chutney
+mambo
+merengue
+cumbia
+mariachi
+punta
+reggaeton
+salsa
+soca
+classical
+ballet
+baroque
+cantata
+chamber music
+concerto
+modern classical
+opera
+oratorio
+orchestra
+sacred music
+sonata
+comedy
+country
+alternative country
+americana
+bluegrass
+classic country
+country pop
+country rock
+honky tonk
+neotraditional country
+outlaw country
+progressive country
+rockabilly
+western swing
+zydeco
+easy listening
+elevator music
+electronic
+ambient
+breakbeat
+disco
+downtempo
+drum and bass
+eurodance
+breakcore
+eurobeat
+house
+industrial
+techno
+trance
+uk garage
+grime
+folk
+anti-folk
+indie folk
+progressive folk
+hip hop
+trap
+rap
+jazz
+bebop
+boogie-woogie
+cool jazz
+dixieland
+free jazz
+jazz fusion
+latin jazz
+ragtime
+smooth jazz
+soul jazz
+swing
+vocal jazz
+other
+worldbeat
+pop
+arab pop
+bubblegum pop
+chanson
+europop
+hyperpop
+mexican pop
+schlager
+soft rock
+surf pop
+traditional pop music
+rhythm and blues
+funk
+soul
+rock
+alternative rock
+art rock
+chinese rock
+folk rock
+garage rock
+glam rock
+hard rock
+heavy metal
+math rock
+new wave
+pop rock
+post-punk
+progressive rock
+psychedelic rock
+punk rock
+rock and roll
+surf rock
+reggae
+reggae fusion
+dancehall
+ska

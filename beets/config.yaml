@@ -1,0 +1,40 @@
+directory: /data/Music/
+library: /data/beets.db
+# TODO: https://beets.readthedocs.io/en/stable/plugins/subsonicupdate.html
+plugins: "info edit mbsync the fuzzy unimported missing chroma fetchart replaygain lastgenre"
+import:
+  move: true
+  from_scratch: true
+  languages: "en"
+  bell: true
+musicbrainz:
+  extra_tags: ["year", "catalognum"]
+match:
+  preferred:
+    media: [ "CD", "Digital Media|File", "LP"]
+paths:
+  # maybe just use albumartist_sort instead of "the" plugin
+  default: "Albums/%the{$albumartist}/($original_year) $album%aunique{} ($label $year)/$track $title"
+  singleton: "Singles/%the{$artist}/$title"
+  comp: "Compilations/$album%aunique{} ($label $year)/$track - $title"
+  "albumtype:soundtrack": "Soundtracks/($original_year) $album%aunique{}/$track $title"
+fetchart:
+  minwidth: 500
+  cover_names: "cover front art album folder albumart"
+  sources: "filesystem coverart"
+  max_filesize: 3000000
+  enforce_ratio: 10%
+  high_resolution: true
+  cautious: true
+  # cover_format: "jxl"
+fuzzy:
+  prefix: " " # searches starting with a space are fuzzy
+the:
+  patterns: "^El\\s ^La\\s ^Los\\s ^Las\\s ^Le\\s ^Les\\s ^Os\\s ^As\\s ^O\\s ^A\\s ^Der\\s ^Die\\s ^Das\\s ^Dem\\s ^Den\\s"
+replaygain:
+  backend: "ffmpeg"
+lastgenre:
+    whitelist: ~/.config/beets/whitelist.txt
+    canonical: true
+    force: false
+    fallback: 'other'
