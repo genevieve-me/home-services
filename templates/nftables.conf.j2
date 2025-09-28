@@ -22,7 +22,16 @@ table inet filter {
         # Allow essential ICMP types
         # echo-reply should be accepted by established/related rule, but include here too for completeness
         ip protocol icmp icmp type { echo-reply, destination-unreachable, time-exceeded, parameter-problem } accept
-        ip6 nexthdr ipv6-icmp icmpv6 type { echo-reply, nd-neighbor-solicit, nd-neighbor-advert, nd-router-advert, packet-too-big } accept
+        ip6 nexthdr ipv6-icmp icmpv6 type {
+            echo-reply,
+            nd-neighbor-solicit,
+            nd-neighbor-advert,
+            nd-router-advert,
+            packet-too-big,
+            mld-listener-query,
+            mld-listener-report,
+            mld-listener-done
+        } accept
 
         # Allow incoming traffic on specific ports with rate limiting for new connections
         # Existing connections are matched above by established/related
