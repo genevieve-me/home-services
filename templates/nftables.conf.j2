@@ -17,12 +17,12 @@ table inet filter {
 
         # Rate-limited ICMP
         ip protocol icmp icmp type echo-request limit rate 5/second accept
-        ip6 nexthdr ipv6-icmp icmpv6 type echo-request limit rate 5/second accept
+        icmpv6 type echo-request limit rate 5/second accept
 
         # Allow essential ICMP types
         # echo-reply should be accepted by established/related rule, but include here too for completeness
         ip protocol icmp icmp type { echo-reply, destination-unreachable, time-exceeded, parameter-problem } accept
-        ip6 nexthdr ipv6-icmp icmpv6 type {
+        icmpv6 type {
             echo-reply,
             nd-neighbor-solicit,
             nd-neighbor-advert,
