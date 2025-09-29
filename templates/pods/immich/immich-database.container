@@ -3,7 +3,6 @@ Pod=immich.pod
 ContainerName=immich_postgres
 Label=app=immich
 Image=ghcr.io/immich-app/postgres:14-vectorchord0.4.3
-Exec=-c listen_addresses=127.0.0.1
 Notify=true
 Environment=POSTGRES_DB=immich POSTGRES_INITDB_ARGS=--data-checksums
 Secret=immich-db-password,type=env,target=POSTGRES_PASSWORD
