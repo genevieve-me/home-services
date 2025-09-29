@@ -48,8 +48,22 @@ table inet filter {
         tcp dport { 22, 22000 } ct state new limit rate 5/minute accept # SSH, Syncthing TCP
         # HTTP/HTTPS on redirected reverse proxy ports
         # keep 80/443 for locally-originating connections and for clarity
-        tcp dport { 80, 443, {{ caddy_http_port }}, {{ caddy_https_port }} } ct state new limit rate 15/minute accept
-        udp dport { 21027, 22000 } accept # Syncthing Discovery and QUIC
+        tcp dport { 80, 443, {{ caddy_http_port }}, {{ caddy_https_port }} } ct state new limit rate 30/minute burst 10 packets accept
+
+        # mDNS for Local Service Discovery
+        # Allow packets destined for the well-known IPv6 mDNS link-local multicast address.
+        # The ff02:: scope ensures these packets only come from the local network.
+        ip6 daddr ff02::fb udp dport 5353 accept
+
+        # Also allow packets sourced from any link-local address, which is another
+        # robust way to identify local-only traffic.
+        ip6 saddr fe80::/10 udp dport 5353 accept
+
+        # For IPv4 compatibility (e.g. .local addresses from older devices)
+        ip daddr 224.0.0.251 udp dport 5353 accept
+
+        # QUIC, QUIC/HTTP3, Syncthing Discovery
+        udp dport { 443, 21027, 22000 } accept
 
         # Log and drop everything else
         log prefix "nft dropped: " limit rate 5/minute
@@ -74,5 +88,7 @@ table inet podman-nat {
         # Redirect HTTP/HTTPS to rootless Caddy container
         tcp dport 80 redirect to :{{ caddy_http_port }}
         tcp dport 443 redirect to :{{ caddy_https_port }}
+        # Redirect QUIC/HTTP3 traffic to Caddy
+        udp dport 443 redirect to :{{ caddy_https_port }}
     }
 }
