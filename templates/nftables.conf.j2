@@ -27,11 +27,21 @@ table inet filter {
             nd-neighbor-solicit,
             nd-neighbor-advert,
             nd-router-advert,
+            nd-redirect,
+            destination-unreachable,
             packet-too-big,
-            mld-listener-query,
-            mld-listener-report,
-            mld-listener-done
+            time-exceeded,
+            parameter-problem
         } accept
+        # allow multicast listener discovery for syncthing
+        icmpv6 type { mld-listener-query, mld-listener-report, mld2-listener-report, mld-listener-done } accept
+
+        # Allow inbound DHCPv6 server responses
+        # This allows the initial ADVERTISE and subsequent REPLY packets
+        # the packets are not caught by established,related rule because
+        # SOLICIT is sent to multicast ff02::1:2 and response comes from a different server address
+        # Restrict this to link-local addresses as this is where DHCPv6 operates
+        ip6 saddr fe80::/10 ip6 daddr fe80::/10 udp sport 547 udp dport 546 accept
 
         # Allow incoming traffic on specific ports with rate limiting for new connections
         # Existing connections are matched above by established/related
