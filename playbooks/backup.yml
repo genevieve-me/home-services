@@ -43,6 +43,15 @@
           WantedBy=timers.target
       notify: Reload systemd
 
+    - name: Create systemd service for backup failure handler
+      ansible.builtin.template:
+        src: "{{ project_dir }}/templates/restic-backup-failure.service.j2"
+        dest: "/etc/systemd/system/restic-backup-failure.service"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+      notify: Reload systemd
+
     - name: Enable and start the backup timer
       ansible.builtin.systemd:
         name: "restic-backup.timer"
