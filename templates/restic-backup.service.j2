@@ -6,4 +6,4 @@ OnFailure=restic-backup-failure.service
 Type=oneshot
 User={{ ansible_user }}
 Environment="RESTIC_PASSWORD={{ restic_backup_password }}"
-ExecStart=/usr/local/bin/backup.sh
+ExecStart=%h/.local/bin/backup.sh
