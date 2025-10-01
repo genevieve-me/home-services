@@ -6,11 +6,8 @@ table inet filter {
     chain input {
         type filter hook input priority filter; policy drop;
 
-        # Allow established and related connections
-        ct state {established, related} accept
-
-        # Drop invalid packets
-        ct state invalid drop
+        # Allow established and related connections, drop invalid packets
+        ct state vmap { established : accept, related : accept, invalid : drop }
 
         # Allow from loopback interface
         iifname "lo" accept
@@ -86,8 +83,7 @@ table inet podman-nat {
     chain prerouting {
         type nat hook prerouting priority dstnat; policy accept;
         # Redirect HTTP/HTTPS to rootless Caddy container
-        tcp dport 80 redirect to :{{ caddy_http_port }}
-        tcp dport 443 redirect to :{{ caddy_https_port }}
+        redirect to :tcp dport map { 80 : {{ caddy_http_port }}, 443 : {{ caddy_https_port }} }
         # Redirect QUIC/HTTP3 traffic to Caddy
         udp dport 443 redirect to :{{ caddy_https_port }}
     }
