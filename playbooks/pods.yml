@@ -62,6 +62,7 @@
         - /data/navidrome_data
         - /data/navidrome_backup
         - /data/paperless/data
+        - /data/paperless/export
         - /data/photos
         - /data/Sync
   roles:
