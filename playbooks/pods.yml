@@ -58,9 +58,10 @@
         state: directory
         mode: '0755'
       loop:
+        - /data/backups/navidrome
+        - /data/backups/kavita
         - /data/Music
         - /data/navidrome_data
-        - /data/navidrome_backup
         - /data/paperless
         - /data/photos
         - /data/Sync
