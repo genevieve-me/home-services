@@ -1,0 +1,129 @@
+---
+podman_services:
+  immich:
+    enabled: true
+    caddy:
+      subdomain: "photos"
+      # technically the DNS part of the target is repeated,
+      # but computing it from the .container or kube .yaml would add too much complexity
+      target: "immich:2283"
+    secrets:
+      - name: immich-db-password
+        data: "{{ immich_db_password | default('dummy') }}"
+        labels:
+          app: immich
+    quadlet_specs:
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-db.volume"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-model-cache.volume"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich.pod"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-database.container"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-redis.container"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-machine-learning.container"
+      - file_src: "{{ project_dir }}/templates/pods/immich/immich-server.container"
+  paperless:
+    enabled: true
+    caddy:
+      subdomain: "seshat"
+      target: "paperless:8000"
+    secrets:
+      - name: paperless-db-password
+        data: "{{ paperless_db_password | default('dummy') }}"
+        labels:
+          app: paperless
+    quadlet_specs:
+      - file_src: "{{ project_dir }}/templates/pods/paperless/paperless-db.volume"
+      - file_src: "{{ project_dir }}/templates/pods/paperless/paperless.pod"
+      - file_src: "{{ project_dir }}/templates/pods/paperless/paperless-db.container"
+      - file_src: "{{ project_dir }}/templates/pods/paperless/paperless-broker.container"
+      - file_src: "{{ project_dir }}/templates/pods/paperless/paperless-webserver.container"
+  koito:
+    enabled: true
+    caddy:
+      subdomain: "koito"
+      target: "koito:4110"
+    secrets:
+      - name: koito-db-password
+        data: "{{ koito_db_password | default('dummy') }}"
+        labels:
+          app: koito
+      - name: koito-db-url
+        data: postgres://postgres:{{ koito_db_password | default('dummy') }}@localhost:5432/koitodb
+        labels:
+          app: koito
+    quadlet_specs:
+      - file_src: "{{ project_dir }}/templates/pods/koito/koito.volume"
+      - file_src: "{{ project_dir }}/templates/pods/koito/koito-db.volume"
+      - file_src: "{{ project_dir }}/templates/pods/koito/koito.pod"
+      - file_src: "{{ project_dir }}/templates/pods/koito/koito-db.container"
+      - template_src: "{{ project_dir }}/templates/pods/koito/koito.container.j2"
+  miniflux:
+    enabled: true
+    caddy:
+      subdomain: "feeds"
+      target: "miniflux:8080"
+    secrets:
+      - name: miniflux-db-password
+        data: "{{ miniflux_db_password | default('dummy') }}"
+        labels:
+          app: miniflux
+      - name: miniflux-database-url
+        data: "postgres://miniflux:{{ miniflux_db_password | default('dummy') }}@localhost/miniflux?sslmode=disable"
+        labels:
+          app: miniflux
+    quadlet_specs:
+      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux-db.volume"
+      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux.pod"
+      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux-pg.container"
+      - template_src: "{{ project_dir }}/templates/pods/miniflux/miniflux.container.j2"
+  ddns:
+    enabled: true
+    secrets:
+      - name: ddns-config
+        data: |
+          {
+            "settings": [
+              {
+                "provider": "he",
+                "domain": "srv.{{ base_domain }}",
+                "password": " {{ ddns_password | default('dummy') }}"
+              }
+            ]
+          }
+    quadlet_specs:
+      - file_src: "{{ project_dir }}/templates/pods/ddns.container"
+  navidrome:
+    enabled: true
+    caddy:
+      subdomain: "music"
+      target: "navidrome:4533"
+    quadlet_specs:
+      - file_src: "{{ project_dir }}/templates/pods/navidrome/navidrome.pod"
+      - file_src: "{{ project_dir }}/templates/pods/navidrome/navidrome.container"
+  nextcloud-aio:
+    enabled: true
+    quadlet_specs:
+      - file_src: "{{ project_dir }}/templates/pods/nextcloud/nextcloud_aio_mastercontainer.volume"
+      - file_src: "{{ project_dir }}/templates/pods/nextcloud/nextcloud-aio.container"
+  thelounge:
+    enabled: true
+    caddy:
+      subdomain: "irc"
+      target: "thelounge:9000"
+    quadlet_specs:
+      - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.volume"
+      - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.pod"
+      - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.container"
+  caddy:
+    enabled: true
+    quadlet_specs:
+      - file_src: "{{ project_dir }}/templates/pods/caddy/caddy-config.volume"
+      - file_src: "{{ project_dir }}/templates/pods/caddy/caddy-data.volume"
+      - template_src: "{{ project_dir }}/templates/pods/caddy/caddy.container.j2"
+  ntfy:
+    enabled: true
+    caddy:
+      subdomain: "{{ ntfy_subdomain }}"
+      target: "ntfy-pod:8002"
+    quadlet_specs:
+      - template_src: "{{ project_dir }}/templates/pods/ntfy/ntfy.yaml.j2"
+      - file_src: "{{ project_dir }}/templates/pods/ntfy/ntfy.kube"

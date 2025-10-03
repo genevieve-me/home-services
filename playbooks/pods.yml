@@ -69,73 +69,17 @@
   vars:
     podman_run_as_user: "{{ ansible_user }}"
     podman_activate_systemd_unit: true
-    # note that these are stored unencrypted on the host by default
-    podman_secrets:
-      - name: immich-db-password
-        data: "{{ immich_db_password | default('dummy') }}"
-        labels:
-          app: immich
-      - name: paperless-db-password
-        data: "{{ paperless_db_password | default('dummy') }}"
-        labels:
-          app: paperless
-      - name: koito-db-password
-        data: "{{ koito_db_password | default('dummy') }}"
-        labels:
-          app: koito
-      - name: koito-db-url
-        data: postgres://postgres:{{ koito_db_password | default('dummy') }}@localhost:5432/koitodb
-        labels:
-          app: koito
-      - name: miniflux-db-password
-        data: "{{ miniflux_db_password | default('dummy') }}"
-        labels:
-          app: miniflux
-      - name: miniflux-database-url
-        data: "postgres://miniflux:{{ miniflux_db_password | default('dummy') }}@localhost/miniflux?sslmode=disable"
-        labels:
-          app: miniflux
-      - name: ddns-config
-        data: |
-          {
-            "settings": [
-              {
-                "provider": "he",
-                "domain": "srv.{{ base_domain }}",
-                "password": " {{ ddns_password | default('dummy') }}"
-              }
-            ]
-          }
-    podman_quadlet_specs:
-      # in dependency order, so volumes/pods must be created first
-      - file_src: "{{ project_dir }}/templates/pods/ddns.container"
-      - file_src: "{{ project_dir }}/templates/pods/syncthing.container"
-      - file_src: "{{ project_dir }}/templates/pods/services.network"
-      - file_src: "{{ project_dir }}/templates/pods/caddy/caddy-config.volume"
-      - file_src: "{{ project_dir }}/templates/pods/caddy/caddy-data.volume"
-      - template_src: "{{ project_dir }}/templates/pods/caddy/caddy.container.j2"
-      - template_src: "{{ project_dir }}/templates/pods/ntfy/ntfy.yaml.j2"
-      - file_src: "{{ project_dir }}/templates/pods/ntfy/ntfy.kube"
-      - file_src: "{{ project_dir }}/templates/pods/nextcloud/nextcloud_aio_mastercontainer.volume"
-      - file_src: "{{ project_dir }}/templates/pods/nextcloud/nextcloud-aio.container"
-      - file_src: "{{ project_dir }}/templates/pods/immich/immich-db.volume"
-      - file_src: "{{ project_dir }}/templates/pods/immich/immich-model-cache.volume"
-      - file_src: "{{ project_dir }}/templates/pods/immich/immich.pod"
-      - file_src: "{{ project_dir }}/templates/pods/immich/immich-database.container"
-      - file_src: "{{ project_dir }}/templates/pods/immich/immich-redis.container"
-      - file_src: "{{ project_dir }}/templates/pods/immich/immich-machine-learning.container"
-      - file_src: "{{ project_dir }}/templates/pods/immich/immich-server.container"
-      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux-db.volume"
-      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux.pod"
-      - file_src: "{{ project_dir }}/templates/pods/miniflux/miniflux-pg.container"
-      - template_src: "{{ project_dir }}/templates/pods/miniflux/miniflux.container.j2"
-      - file_src: "{{ project_dir }}/templates/pods/navidrome/navidrome.pod"
-      - file_src: "{{ project_dir }}/templates/pods/navidrome/navidrome.container"
-      - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.volume"
-      - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.pod"
-      - file_src: "{{ project_dir }}/templates/pods/thelounge/thelounge.container"
-      - file_src: "{{ project_dir }}/templates/pods/koito/koito.volume"
-      - file_src: "{{ project_dir }}/templates/pods/koito/koito-db.volume"
-      - file_src: "{{ project_dir }}/templates/pods/koito/koito.pod"
-      - file_src: "{{ project_dir }}/templates/pods/koito/koito-db.container"
-      - template_src: "{{ project_dir }}/templates/pods/koito/koito.container.j2"
+    # note that these secrets are stored unencrypted on the host by default
+    # Dynamically build list of secrets for enabled services
+    podman_secrets: "{{ podman_services | dict2items | rejectattr('value.secrets', 'undefined') | selectattr('value.enabled', 'equalto', true) | map(attribute='value.secrets') | flatten }}"
+    # in dependency order, so volumes/pods must be created first
+    podman_quadlet_specs: "{{ [
+        {'file_src': project_dir ~ '/templates/pods/syncthing.container'},
+        {'file_src': project_dir ~ '/templates/pods/services.network'},
+      ] +
+      ( podman_services
+      | dict2items
+      | selectattr('value.enabled')
+      | map(attribute='value.quadlet_specs')
+      | flatten )
+      }}"

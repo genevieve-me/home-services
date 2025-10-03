@@ -1,34 +1,33 @@
-music.{{ base_domain }} {
-	# transparent proxy + websocket support + letsencrypt TLS
-	reverse_proxy navidrome:4533
+{% set services_with_caddy = podman_services | dict2items | selectattr('value.enabled', 'equalto', true) | selectattr('value.caddy', 'defined') %}
+
+{# Generate blocks for subdomains #}
+{% for service in services_with_caddy if service.value.caddy.subdomain is defined %}
+{{ service.value.caddy.subdomain }}.{{ base_domain }} {
+	reverse_proxy {{ service.value.caddy.target }}
 }
-feeds.{{ base_domain }} {
-	# to customize, set LISTEN_ADDR env for miniflux
-	reverse_proxy miniflux:8080
-}
-photos.{{ base_domain }} {
-	reverse_proxy immich:2283
-}
+{% endfor %}
+
+{# Nextcloud is included manually because it includes two subdomains and custom settings #}
 nextcloud.{{ base_domain }} {
 	reverse_proxy nextcloud-aio-apache:11000
 }
 nextcloud-admin.{{ base_domain }} {
 	reverse_proxy https://nextcloud-aio-mastercontainer:8080 {
 		transport http {
-			# tls_trust_pool file /data/nextcloud-admin-ssl.crt
-			# tls_server_name nextcloud.local
-			# Skip TLS verification because cert has no SAN field, so the above doesn't work
+			# only applies to the Nextcloud container's self-signed cert, not to the outside world
 			tls_insecure_skip_verify
 		}
 	}
 }
-irc.{{ base_domain }} {
-	reverse_proxy thelounge:9000
-}
-koito.{{ base_domain }} {
-	reverse_proxy koito:4110
-}
 
-{{ ntfy_subdomain }}.{{ base_domain }} {
-	reverse_proxy ntfy-pod:8002
+{# The if is technically unnecessary, caddy supports an empty block #}
+{% set path_services = services_with_caddy | selectattr('value.caddy.path', 'defined') | list %}
+{% if path_services %}
+srv.{{ base_domain }} {
+{% for service in path_services %}
+	handle_path /{{ service.value.caddy.path }}/* {
+		reverse_proxy {{ service.value.caddy.target }}
+	}
+{% endfor %}
 }
+{% endif %}
