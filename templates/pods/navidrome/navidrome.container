@@ -14,4 +14,4 @@ Environment=ND_BACKUP_PATH=/backup ND_BACKUP_SCHEDULE="0 4 * * 0" ND_BACKUP_COUN
 Environment=ND_LISTENBRAINZ_BASEURL=http://koito:4110/apis/listenbrainz/1/
 Volume=/data/Music:/music
 Volume=/data/navidrome_data:/data
-Volume=/data/navidrome_backup:/backup
+Volume=/data/backups/navidrome:/backup

@@ -22,6 +22,7 @@ podman volume export thelounge-data > "${DUMP_DIR}/thelounge-volume.tar"
 echo "thelounge volume export complete."
 podman volume export nextcloud_aio_mastercontainer > "${DUMP_DIR}/nextcloud_aio_mastercontainer-volume.tar"
 echo "Nextcloud volume export complete."
+# see also https://docs.podman.io/en/v5.2.2/markdown/podman-cp.1.html#alternatives
 
 echo "Running restic backup..."
 restic backup \
@@ -29,9 +30,13 @@ restic backup \
     --verbose \
     /data/photos \
     /data/Music \
-    /data/navidrome_backup \
+    /data/backups \
     /data/Sync \
     /data/Nextcloud \
+    # manual backups?
+    # all the backup script does is backup the volumes https://github.com/nextcloud/all-in-one/blob/main/Containers/borgbackup/backupscript.sh
+    # database is handled by the database dumping to a volume nextcloud_aio_database_dump on startup
+    # https://github.com/nextcloud/all-in-one/blob/a8b4d1f0c9610f334e3427f6dd9b889224236cd9/Containers/postgresql/start.sh#L6
     /data/nextcloud-backups \
     /data/paperless \
     /data/beets.db \
