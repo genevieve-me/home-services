@@ -1,6 +1,56 @@
 This repository contains Podman quadlet files for running self-hosted services
 on a single machine with systemd, managed and deployed using Ansible.
 
+### Layout
+
+The repository is composed of directories for Ansible actions (`playbooks`),
+files to push to the host (`templates`), and variables (`group_vars`).
+
+The podman services are mostly configured through variables in the `quadlets.yml` file,
+which allows easily enabling/disabling services and centralizing config for things
+like reverse proxying.
+
+#### Reverse proxying
+
+Caddy is used because it offers transparent proxying, websocket support, and Let's
+Encrypt TLS with no configuration. It's run in a container and Caddy communicates
+with other pods over the Podman network and its ports 80/443 are published to the host.
+(Actually, published to 10080/10443, and nftables handles routing to/from 80/443).
+
+This is a bit easier to deploy and I don't have to worry about publishing
+other containers' ports (and dealing with potential overlap) or setting up
+network bridges so that uncontainerized Caddy could access the Podman network.
+
+Note that the Caddy target is the DNS name corresponding to the pod on the
+same network that Caddy should reverse proxy to. It depends on if the service
+is being run through a 'podman-style' quadlet or a `[Kube]`-style quadlet,
+where the latter generates a service that runs `podman kube play` on a valid Kubernetes spec.
+
+`podman kube play` will always append `-pod` to the name of the created pod
+(e.g. the deployment `metadata.name`), which is why that suffix is present in some targets but not others.
+`PodName=foo` in `foo.pod` will produce a pod with exactly the name `foo` and no suffix.
+
+**Choice of Caddy**
+
+Traefik is very popular for reverse proxying to containers because of its labeling system,
+but unless you use an option like `providers.docker.defaultRule=Host(`{{ normalize .ContainerName }}.example.com`)"`,
+you still need to declare the reverse proxy configuration, just on the target container rather than
+for the reverse proxy container.
+Personally I don't find the former any nicer so I'll stick with Caddy in a Podman context.
+
+Traefik also wants to access the Docker/Podman socket to do its label magic;
+even if Podman has good support for that now, it's still a very high level of privilege,
+and it requires SELinux workarounds when rootless.
+
+#### Variable assignment
+
+The inventory only contains a single group `home` with a single host for now.
+`group_vars/home` is used to contain both regular and encrypted (vault) variables
+files that apply to all playbooks for the home group.
+
+(They could also be under `group_vars/all/` as per
+["Organizing host and group variables", Ansible docs](https://docs.ansible.com/ansible/latest/inventory_guide/intro_inventory.html#organizing-host-and-group-variables).)
+
 ### Automated Deployment
 
 The repository includes a GitHub Actions workflow (`.github/workflows/ansible-deploy.yml`) that automatically deploys changes when pushed to the main branch. The workflow:
@@ -17,7 +67,23 @@ The repository includes a GitHub Actions workflow (`.github/workflows/ansible-de
 
 - Ansible is most easily installed with pipx: `[uvx] pipx install --include-deps ansible`
   - You must also `ansible-galaxy install -r requirements.yml`
-- To edit the ansible-vault secrets: `ansible-vault edit vars.vault.yml` (will prompt for password)
+- To edit the ansible-vault secrets: `ansible-vault edit groups_vars/home/vars.vault.yml` (will prompt for password)
+
+For testing you can use `ansible` to run ad-hoc commands. For example:
+
+```
+ansible localhost --module-name ansible.builtin.debug \
+  -a "msg={{ lookup('template', 'templates/Caddyfile.j2') }}" \
+  --extra-vars "@group_vars/home/quadlets.yml" -e "@group_vars/home/main.yml" \
+  -e "@group_vars/home/vault.yml" --vault-id vault_password_file
+```
+
+In addition to the `debug` module, `template` with a local `dest` can be helpful to view file output.
+
+`--vault-id` without specifying a vault-id is used to point to a password file,
+see <https://docs.ansible.com/ansible/latest/vault_guide/vault_using_encrypted_content.html#using-vault-id-without-a-vault-id>.
+
+You can also run `ansible-playbook --check --diff` to show the changes that would be implemented by a run.
 
 ### Other server setup
 
