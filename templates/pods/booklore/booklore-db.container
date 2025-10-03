@@ -1,0 +1,18 @@
+[Container]
+Pod=booklore.pod
+ContainerName=booklore-mariadb
+Label=app=booklore
+Image=lscr.io/linuxserver/mariadb:11.4.5
+Environment=PUID=1000 PGID=1000 TZ=Etc/UTC
+Environment=MYSQL_DATABASE=booklore MYSQL_USER=booklore
+Secret=booklore-db-root-password,type=env,target=MYSQL_ROOT_PASSWORD
+Secret=booklore-db-password,type=env,target=MYSQL_PASSWORD
+Volume=booklore-db.volume:/config
+HealthCmd=["mariadb-admin","ping","-h","localhost"]
+HealthInterval=5s
+HealthRetries=10
+HealthTimeout=5s
+
+[Service]
+Restart=always
+

@@ -1,0 +1,21 @@
+[Unit]
+Description=Audio Bookshelf
+
+[Container]
+Pod=audiobookshelf.pod
+ContainerName=audiobookshelf
+Label=app=audiobookshelf
+AutoUpdate=registry
+Image=ghcr.io/advplyr/audiobookshelf:latest
+Environment=TZ=America/New_York
+# contains the database (users/libraries/settings)
+Environment=CONFIG_PATH=/data/config
+# contains cache, covers, logs, etc.
+Environment=METADATA_PATH=/data/metadata
+Environment=BACKUP_PATH=/backups
+Volume=/data/audiobooks:/audiobooks
+Volume=/data/podcasts:/podcasts
+# contains the database
+Volume=audiobookshelf-data.volume:/data
+# contains cache and backups in
+Volume=/data/backups/audiobookshelf:/backups

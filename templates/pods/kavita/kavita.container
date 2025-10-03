@@ -1,0 +1,12 @@
+[Unit]
+Description=Kavita
+
+[Container]
+Pod=kavita.pod
+ContainerName=kavita
+Label=app=kavita
+AutoUpdate=registry
+Image=ghcr.io/kareadita/kavita:latest
+Environment=TZ=America/New_York
+Volume=/data/books:/books
+Volume=kavita-data.volume:/kavita/config

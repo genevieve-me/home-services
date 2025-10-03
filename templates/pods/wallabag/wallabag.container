@@ -1,0 +1,15 @@
+[Unit]
+Description=Wallabag container
+
+[Container]
+Pod=wallabag.pod
+ContainerName=wallabag
+Label=app=wallabag
+AutoUpdate=registry
+Image=docker.io/wallabag/wallabag
+Environment=SYMFONY__ENV__DOMAIN_NAME=http://localhost:8080
+# this does not inspire confidence
+# https://hub.docker.com/r/wallabag/wallabag/
+# port: 8080
+Volume=wallabag-data.volume:/var/wallabag/data
+Volume=wallabag-images.volume:/var/www/wallabag/web/assets/images

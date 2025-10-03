@@ -1,0 +1,30 @@
+# https://docs.karakeep.app/installation/docker
+[Container]
+Pod=karakeep.pod
+# exposes port 3000
+ContainerName=karakeep
+Label=app=karakeep
+Image=ghcr.io/karakeep-app/karakeep:release
+Environment=MEILI_ADDR=http://meilisearch:7700 BROWSER_WEB_URL=http://chrome:9222 OLLAMA_BASE_URL=http://ollama:11434
+Environment=INFERENCE_TEXT_MODEL=llama3.1:8b INFERENCE_IMAGE_MODEL=llava
+Environment=NEXTAUTH_URL=https://{{ karakeep_subdomain }}.{{ base_url }}
+Secret=dummy,type=env,target=MEILI_MASTER_KEY
+Secret=dummy,type=env,target=NEXTAUTH_SECRET
+Label=com.example.description=hoarder traefik.enable=true traefik.http.routers.hoarder.rule=Host(`hoarder.jameskilby.cloud`) traefik.http.routers.hoarder.entrypoints=https traefik.http.routers.hoarder.tls=true traefik.http.routers.hoarder.tls.certresolver=cloudflare traefik.http.services.hoarder.loadbalancer.server.port=3000
+Volume=/data/karakeep:/data
+
+[Service]
+Restart=always
+
+# chrome
+# [Container]
+# Exec=--no-sandbox --disable-gpu --disable-dev-shm-usage '--remote-debugging-address=0.0.0.0' '--remote-debugging-port=9222' --hide-scrollbars
+# Image=gcr.io/zenika-hub/alpine-chrome:124
+
+# meilisearch.container
+# [Container]
+# Environment=MEILI_NO_ANALYTICS=true
+# EnvironmentFile=.env
+# Image=getmeili/meilisearch:v1.11.1
+# Secret=dummy,type=env,target=MEILI_MASTER_KEY
+# Volume=/data/karakeep/meilisearch:/meili_data

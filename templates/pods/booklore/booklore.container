@@ -1,0 +1,15 @@
+[Container]
+Pod=booklore.pod
+ContainerName=booklore
+Image=ghcr.io/booklore-app/booklore:latest
+# PublishPort=6060:6060
+Environment=PUID=1000 PGID=1000 TZ=Etc/UTC SWAGGER_ENABLED=false
+Environment=DATABASE_URL=jdbc:mariadb://mariadb:3306/booklore DATABASE_USERNAME=booklore
+Secret=booklore-db-password,type=env,target=DATABASE_PASSWORD
+# both settings and cache
+Volume=booklore-data.volume:/app/data
+Volume=/data/books:/books
+# Volume=/your/local/path/to/booklore/bookdrop:/bookdrop
+
+[Service]
+Restart=always

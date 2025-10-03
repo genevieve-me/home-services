@@ -127,3 +127,31 @@ podman_services:
     quadlet_specs:
       - template_src: "{{ project_dir }}/templates/pods/ntfy/ntfy.yaml.j2"
       - file_src: "{{ project_dir }}/templates/pods/ntfy/ntfy.kube"
+  audiobookshelf:
+    enabled: true
+    caddy:
+      subdomain: apollo
+      target: "audiobookshelf:13378"
+    quadlet_specs:
+      - file_src: "{{ project_dir }}templates/pods/audiobookshelf/audiobookshelf-data.volume"
+      - file_src: "{{ project_dir }}/templates/pods/audiobookshelf/audiobookshelf.pod"
+      - file_src: "{{ project_dir }}templates/pods/audiobookshelf/audiobookshelf.container"
+  kavita:
+    enabled: true
+    caddy:
+      path: kavita
+      target: "kavita:5000"
+    quadlet_specs:
+      - file_src: "{{ project_dir }}templates/pods/kavita/kavita-data.volume"
+      - file_src: "{{ project_dir }}/templates/pods/kavita/kavita.pod"
+      - file_src: "{{ project_dir }}templates/pods/kavita/kavita.container"
+  booklore:
+    enabled: true
+    caddy:
+      subdomain: thoth
+      target: "booklore:6060"
+    quadlet_specs:
+      - file_src: "{{ project_dir }}templates/pods/booklore/booklore-data.volume"
+      - file_src: "{{ project_dir }}/templates/pods/booklore/booklore.pod"
+      - file_src: "{{ project_dir }}templates/pods/booklore/booklore-db.container"
+      - file_src: "{{ project_dir }}templates/pods/booklore/booklore.container"
