@@ -11,7 +11,7 @@ musicbrainz:
   extra_tags: ["year", "catalognum"]
 match:
   preferred:
-    media: [ "CD", "Digital Media|File", "LP"]
+    media: ["CD", "Digital Media|File", "LP"]
 paths:
   # maybe just use albumartist_sort instead of "the" plugin
   default: "Albums/%the{$albumartist}/($original_year) $album%aunique{} ($label $year)/$track $title"
@@ -34,7 +34,7 @@ the:
 replaygain:
   backend: "ffmpeg"
 lastgenre:
-    whitelist: ~/.config/beets/whitelist.txt
-    canonical: true
-    force: false
-    fallback: 'other'
+  whitelist: ~/.config/beets/whitelist.txt
+  canonical: true
+  force: false
+  fallback: 'other'
