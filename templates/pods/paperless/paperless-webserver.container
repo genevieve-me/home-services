@@ -1,7 +1,3 @@
-[Unit]
-Requires=db.service broker.service
-After=db.service broker.service
-
 [Container]
 Pod=paperless.pod
 ContainerName=paperless_ngx
@@ -19,5 +15,6 @@ Volume=/data/paperless/export:/usr/src/paperless/export
 # disabled by env var
 # Volume=/data/paperless/consume:/usr/src/paperless/consume
 
-[Service]
-Restart=always
+[Unit]
+Requires=paperless-db.service paperless-broker.service
+After=paperless-db.service paperless-broker.service
