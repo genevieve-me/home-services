@@ -3,7 +3,7 @@ Requires=db.service broker.service
 After=db.service broker.service
 
 [Container]
-Pod=paperless
+Pod=paperless.pod
 ContainerName=paperless_ngx
 Label=app=paperless
 AutoUpdate=registry

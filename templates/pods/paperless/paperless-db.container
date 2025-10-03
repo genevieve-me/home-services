@@ -1,5 +1,5 @@
 [Container]
-Pod=paperless
+Pod=paperless.pod
 ContainerName=paperless_ngx_db
 Label=app=paperless
 AutoUpdate=registry

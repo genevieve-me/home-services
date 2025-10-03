@@ -2,7 +2,7 @@
 Description=The Lounge
 
 [Container]
-Pod=thelounge
+Pod=thelounge.pod
 ContainerName=thelounge
 Label=app=thelounge
 AutoUpdate=registry
