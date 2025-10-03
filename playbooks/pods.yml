@@ -71,7 +71,13 @@
     podman_activate_systemd_unit: true
     # note that these secrets are stored unencrypted on the host by default
     # Dynamically build list of secrets for enabled services
-    podman_secrets: "{{ podman_services | dict2items | rejectattr('value.secrets', 'undefined') | selectattr('value.enabled', 'equalto', true) | map(attribute='value.secrets') | flatten }}"
+    podman_secrets: "{{ podman_services
+      | dict2items
+      | rejectattr('value.secrets', 'undefined')
+      | selectattr('value.enabled', 'equalto', true)
+      | map(attribute='value.secrets')
+      | flatten
+      }}"
     # in dependency order, so volumes/pods must be created first
     podman_quadlet_specs: "{{ [
         {'file_src': project_dir ~ '/templates/pods/syncthing.container'},
