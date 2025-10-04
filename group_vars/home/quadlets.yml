@@ -122,7 +122,7 @@ podman_services:
   ntfy:
     enabled: true
     caddy:
-      subdomain: "{{ ntfy_subdomain }}"
+      subdomain: "narada"
       target: "ntfy-pod:8002"
     quadlet_specs:
       - template_src: "{{ project_dir }}/templates/pods/ntfy/ntfy.yaml.j2"

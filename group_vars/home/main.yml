@@ -3,7 +3,6 @@ project_dir: "{{ lookup('ansible.builtin.env', 'CI_PROJECT_DIR', default= invent
 caddy_http_port: 10080
 caddy_https_port: 10443
 base_domain: genevievemendoza.com
-ntfy_subdomain: narada
 ntfy_admin_user: "{{ ansible_user }}"
 ntfy_backup_user: restic-backup
 ntfy_backup_topic: restic-backup-weekly

@@ -3,4 +3,4 @@ Description=Restic Backup Failure Notification
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/curl -H "Authorization: Bearer {{ ntfy_backup_token }}" -H "Title: Backup Failed" -d "Restic backup unit failed. Check journalctl for logs." https://{{ ntfy_subdomain }}.{{ base_domain }}/{{ ntfy_backup_topic }}
+ExecStart=/usr/bin/curl -H "Authorization: Bearer {{ ntfy_backup_token }}" -H "Title: Backup Failed" -d "Restic backup unit failed. Check journalctl for logs." https://{{ podman_services.ntfy.caddy.subdomain }}.{{ base_domain }}/{{ ntfy_backup_topic }}

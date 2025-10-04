@@ -7,7 +7,8 @@ Label=app=miniflux
 # AutoUpdate=registry
 Image=ghcr.io/miniflux/miniflux:2.2.12
 Secret=miniflux-database-url,type=env,target=DATABASE_URL
-Environment=BASE_URL=https://feeds.{{ base_domain }} RUN_MIGRATIONS=1 POLLING_FREQUENCY=300
+Environment=RUN_MIGRATIONS=1 POLLING_FREQUENCY=300
+Environment=BASE_URL=https://{{ podman_services.miniflux.caddy.subdomain }}.{{ base_domain }}
 # 8080 is default
 # Environment=LISTEN_ADDR=8080
 # on the first run you must also specify env vars:
