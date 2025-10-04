@@ -159,3 +159,15 @@ I can also safely add `pull_request` workflows since the repository setting (now
 is to require approval to run workflows for non-contributors, preventing drive-by
 ['pwn requests'](https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/).
 (`pull_request` workflows from forks also don't have access to secrets even if they are approved.)
+
+### Rootless quirks
+
+Some containers do custom operations depending on UIDs, like dropping privileges to a certain
+UID in their container entrypoint script. For example, paperless respects the environment variables
+`USERMAP_UID` and `USERMAP_GID` to set its UID/GID, and we want the UID/GID in the container to
+correspond to namespaced versions of the `ansible_user` running the rootless container.
+The appropriate values can be found with `podman unshare -- id -u`,
+but should typically be 0 (in container namespace) for 1000 (on the host).
+
+Nextcloud is even more complicated and has some validation logic we have to go out of our way to satisfy,
+and this is why `./playbooks/nextcloud.yml` exists; please see the inline comments there for an explanation.
