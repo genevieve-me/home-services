@@ -1,0 +1,10 @@
+[Container]
+Pod=paperless.pod
+ContainerName=paperless_pdf
+Label=app=paperless
+AutoUpdate=registry
+Image=docker.io/gotenberg/gotenberg:8
+# From upstream: "The gotenberg chromium route is used to convert .eml files.
+# We do not want to allow external content like tracking pixels or even javascript."
+Exec=gotenberg --chromium-disable-javascript=true --chromium-allow-list=file:///tmp/.*
+

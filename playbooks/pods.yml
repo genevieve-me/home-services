@@ -56,7 +56,7 @@
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
       loop:
         - /data/Music
         - /data/navidrome_data
@@ -64,6 +64,28 @@
         - /data/paperless
         - /data/photos
         - /data/Sync
+    - name: Get enabled services
+      ansible.builtin.set_fact:
+        enabled_services: "{{ podman_services | dict2items | selectattr('value.enabled') | list }}"
+    - name: Calculate the final list of quadlet specs
+      ansible.builtin.set_fact:
+        enabled_quadlet_specs: >-
+          {% set final_specs = [] %}
+          {% for service in (podman_services | dict2items | selectattr('value.enabled') | map(attribute='value')) %}
+            {% for spec in service.quadlet_specs %}
+              {% if spec.when is not defined or service[spec.when] %}
+                {% do final_specs.append(spec) %}
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+          {{ final_specs }}
+      tags:
+        - check_fact
+    - name: Debug the quadlet fact
+      ansible.builtin.debug:
+        var: enabled_quadlet_specs
+      tags:
+        - check_fact
   roles:
     - role: "linux-system-roles.podman"
   vars:
@@ -79,13 +101,4 @@
       | flatten
       }}"
     # in dependency order, so volumes/pods must be created first
-    podman_quadlet_specs: "{{ [
-        {'file_src': project_dir ~ '/templates/pods/syncthing.container'},
-        {'file_src': project_dir ~ '/templates/pods/services.network'},
-      ] +
-      ( podman_services
-      | dict2items
-      | selectattr('value.enabled')
-      | map(attribute='value.quadlet_specs')
-      | flatten )
-      }}"
+    podman_quadlet_specs: "{{ base_quadlet_specs + enabled_quadlet_specs }}"

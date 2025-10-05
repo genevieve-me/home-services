@@ -12,6 +12,9 @@ Environment=PAPERLESS_DATA_DIR=/opt/paperless/data
 Environment=PAPERLESS_MEDIA_ROOT=/opt/paperless/media
 # alternative location to upload documents to paperless
 Environment=PAPERLESS_CONSUMER_DISABLE=true
+{% if podman_services.paperless.enable_tika is sameas true %}
+Environment=PAPERLESS_TIKA_ENABLED=1 PAPERLESS_TIKA_GOTENBERG_ENDPOINT=http://localhost:3000 PAPERLESS_TIKA_ENDPOINT=http://localhost:9998
+{% endif %}
 # Environment=PAPERLESS_CONSUMPTION_DIR=/opt/paperless/consume
 Secret=paperless-db-password,type=env,target=PAPERLESS_DBPASS
 # the data directories specified above are auto-created by paperless container,

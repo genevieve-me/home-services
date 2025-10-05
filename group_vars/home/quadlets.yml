@@ -1,4 +1,7 @@
 ---
+base_quadlet_specs:
+  - file_src: "{{ project_dir }}/templates/pods/syncthing.container"
+  - file_src: "{{ project_dir }}/templates/pods/services.network"
 podman_services:
   immich:
     enabled: true
@@ -22,6 +25,7 @@ podman_services:
       - file_src: "{{ project_dir }}/templates/pods/immich/immich-server.container"
   paperless:
     enabled: true
+    enable_tika: false
     caddy:
       subdomain: "seshat"
       target: "paperless:8000"
@@ -35,6 +39,10 @@ podman_services:
       - file_src: "{{ project_dir }}/templates/pods/paperless/paperless.pod"
       - file_src: "{{ project_dir }}/templates/pods/paperless/paperless-db.container"
       - file_src: "{{ project_dir }}/templates/pods/paperless/paperless-broker.container"
+      - file_src: "{{ project_dir }}/templates/pods/paperless/paperless-gotenberg.container"
+        when: "enable_tika"
+      - file_src: "{{ project_dir }}/templates/pods/paperless/paperless-tika.container"
+        when: "enable_tika"
       - file_src: "{{ project_dir }}/templates/pods/paperless/paperless-webserver.container"
   koito:
     enabled: true

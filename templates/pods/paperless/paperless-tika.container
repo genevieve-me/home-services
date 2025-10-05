@@ -1,0 +1,6 @@
+[Container]
+Pod=paperless.pod
+ContainerName=paperless_tika
+Label=app=paperless
+Image=docker.io/apache/tika:3.2.3.0
+
