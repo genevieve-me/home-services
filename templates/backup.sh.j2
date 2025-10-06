@@ -24,6 +24,9 @@ podman volume export nextcloud_aio_mastercontainer > "${DUMP_DIR}/nextcloud_aio_
 echo "Nextcloud volume export complete."
 # see also https://docs.podman.io/en/v5.2.2/markdown/podman-cp.1.html#alternatives
 
+# also mount /data/backup/paperless to /opt/paperless/backup
+# and have the weekly run of document_exporter target that dir
+
 echo "Running restic backup..."
 restic backup \
     --repo "sftp:de3946@de3946.rsync.net:restic" \
