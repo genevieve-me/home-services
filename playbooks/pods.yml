@@ -64,23 +64,49 @@
         - /data/paperless
         - /data/photos
         - /data/Sync
+    # maybe this
+    - name: Initialize quadlet specs list
+      ansible.builtin.set_fact:
+        enabled_quadlet_specs: []
+
+    - name: Add unconditional specs for each enabled service
+      ansible.builtin.set_fact:
+        enabled_quadlet_specs: "{{ enabled_quadlet_specs + (
+          item.value.quadlet_specs
+          | selectattr('when', 'undefined')
+          | list
+          ) }}"
+      loop: "{{ podman_services | dict2items | selectattr('value.enabled') | list }}"
+
+    - name: Add conditional specs for each enabled service
+      ansible.builtin.set_fact:
+        enabled_quadlet_specs: "{{ enabled_quadlet_specs + [item[1]] }}"
+      loop: "{{ podman_services | dict2items | selectattr('value.enabled') | subelements('value.quadlet_specs') | list }}"
+      when:
+        - item[1].when is defined
+        - item[0].value[item[1].when] | default(false)
+    # or maybe this
     - name: Get enabled services
       ansible.builtin.set_fact:
         enabled_services: "{{ podman_services | dict2items | selectattr('value.enabled') | list }}"
-    - name: Calculate the final list of quadlet specs
+
+    - name: Build quadlet specs for each service
       ansible.builtin.set_fact:
-        enabled_quadlet_specs: >-
-          {% set final_specs = [] %}
-          {% for service in (podman_services | dict2items | selectattr('value.enabled') | map(attribute='value')) %}
-            {% for spec in service.quadlet_specs %}
-              {% if spec.when is not defined or service[spec.when] %}
-                {% do final_specs.append(spec) %}
-              {% endif %}
-            {% endfor %}
-          {% endfor %}
-          {{ final_specs }}
-      tags:
-        - check_fact
+        service_quadlet_specs: "{{ service_quadlet_specs | default([]) + (
+          item.value.quadlet_specs
+          | selectattr('when', 'undefined')
+          | list
+          ) + (
+          item.value.quadlet_specs
+          | selectattr('when', 'defined')
+          | select('test_when_condition', item.value)
+          | list
+          ) }}"
+      loop: "{{ enabled_services }}"
+      vars:
+        # Custom test to check if when condition is met
+        test_when_condition: "{{ spec.when is defined and item.value[spec.when] | default(false) }}"
+
     - name: Debug the quadlet fact
       ansible.builtin.debug:
         var: enabled_quadlet_specs
