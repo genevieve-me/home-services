@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# first arg: container name
+# second arg: database name
+backup_pg_dump() {
+    printf "Starting pg_dump backup for DB for $1\n"
+
+    # "--stdin-filename" must not contain "/" due to restic bug fixed in 0.18.1
+    # https://github.com/restic/restic/issues/5324
+    # https://github.com/restic/restic/releases/tag/v0.18.1
+    /usr/local/sbin/restic \
+        --retry-lock 1h \
+        backup \
+        --no-scan \
+        --group-by host,tags \
+        --tag "db,$1" \
+        --stdin-filename "$1-db-$2-backup.sql" \
+        --stdin-from-command -- \
+        podman exec "$1" pg_dumpall -U "$2"
+
+    printf "Finished pg_dump / backup for DBs: %s\n"
+}
+
 echo "Checking restic repository integrity..."
 restic check --repo "sftp:de3946@de3946.rsync.net:restic"
 echo "Check complete."
@@ -22,6 +43,10 @@ podman volume export thelounge-data > "${DUMP_DIR}/thelounge-volume.tar"
 echo "thelounge volume export complete."
 podman volume export nextcloud_aio_mastercontainer > "${DUMP_DIR}/nextcloud_aio_mastercontainer-volume.tar"
 echo "Nextcloud volume export complete."
+# see also https://docs.podman.io/en/v5.2.2/markdown/podman-cp.1.html#alternatives
+
+# also mount /data/backup/paperless to /opt/paperless/backup
+# and have the weekly run of document_exporter target that dir
 
 echo "Running restic backup..."
 restic backup \
@@ -29,9 +54,13 @@ restic backup \
     --verbose \
     /data/photos \
     /data/Music \
-    /data/navidrome_backup \
+    /data/backups \
     /data/Sync \
     /data/Nextcloud \
+    # manual backups?
+    # all the backup script does is backup the volumes https://github.com/nextcloud/all-in-one/blob/main/Containers/borgbackup/backupscript.sh
+    # database is handled by the database dumping to a volume nextcloud_aio_database_dump on startup
+    # https://github.com/nextcloud/all-in-one/blob/a8b4d1f0c9610f334e3427f6dd9b889224236cd9/Containers/postgresql/start.sh#L6
     /data/nextcloud-backups \
     /data/paperless \
     /data/beets.db \
